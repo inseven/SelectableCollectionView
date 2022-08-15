@@ -29,6 +29,8 @@ protocol CollectionViewContainerDelegate: NSObject {
                                                    contentForElement element: Element) -> Content?
     func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
                                                    didUpdateSelection selection: Set<Element>)
+    func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
+                                                   didDoubleClickSelection selection: Set<Element>)
 }
 
 public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, NSCollectionViewDelegate, CustomCollectionViewMenuDelegate {
@@ -162,6 +164,10 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
 
     func customCollectionView(_ customCollectionView: CustomCollectionView, didUpdateSelection selection: Set<IndexPath>) {
         updateSelection()
+    }
+
+    func customCollectionView(_ customCollectionView: CustomCollectionView, didDoubleClickSelection selection: Set<IndexPath>) {
+        delegate?.collectionViewContainer(self, didDoubleClickSelection: selectedElements)
     }
 
     public func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {

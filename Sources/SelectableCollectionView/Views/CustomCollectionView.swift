@@ -24,6 +24,7 @@ protocol CustomCollectionViewMenuDelegate: NSObject {
 
     func customCollectionView(_ customCollectionView: CustomCollectionView, contextMenuForSelection selection: IndexSet) -> NSMenu?
     func customCollectionView(_ customCollectionView: CustomCollectionView, didUpdateSelection selection: Set<IndexPath>)
+    func customCollectionView(_ customCollectionView: CustomCollectionView, didDoubleClickSelection selection: Set<IndexPath>)
 
 }
 
@@ -45,11 +46,22 @@ class CustomCollectionView: NSCollectionView {
         menuDelegate?.customCollectionView(self, didUpdateSelection: selectionIndexPaths)
 
         // Get the menu for the current selection.
+#warning("TODO: Update to selectionIndexPaths")
         if let menu = menuDelegate?.customCollectionView(self, contextMenuForSelection: selectionIndexes) {
             return menu
         }
 
         return super.menu(for: event)
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        super.mouseDown(with: event)
+
+        // Handle double-click.
+        if event.clickCount > 1,
+           !selectionIndexPaths.isEmpty {
+            menuDelegate?.customCollectionView(self, didDoubleClickSelection: selectionIndexPaths)
+        }
     }
 
 }

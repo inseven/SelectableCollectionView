@@ -24,8 +24,6 @@ struct SelectionToolbar: CustomizableToolbarContent {
 
     @EnvironmentObject var model: Model
 
-    let id: String
-
     var body: some CustomizableToolbarContent {
 
         ToolbarItem(id: "clear") {

@@ -55,8 +55,16 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
             guard let selection = selection as? Set<Data.Element> else {
                 return
             }
-            let ids = selection.map({ $0.id })
-            parent.selection.wrappedValue = Set(ids)
+            let ids = Set(selection.map { $0.id })
+            parent.selection.wrappedValue = ids
+        }
+
+        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>, didDoubleClickSelection selection: Set<Element>) where Element : Hashable, Content : View {
+            guard let selection = selection as? Set<Data.Element> else {
+                return
+            }
+            let ids = Set(selection.map { $0.id })
+            parent.primaryAction(ids)
         }
 
     }
@@ -66,17 +74,20 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
     let layout: any Layoutable
     let itemContent: (Data.Element) -> Content
     let contextMenu: (Set<Data.Element>) -> [MenuItem]
+    let primaryAction: (Set<Data.Element.ID>) -> ()
 
     public init(_ items: Data,
                 selection: Binding<Set<Data.Element.ID>>,
                 layout: any Layoutable,
                 @ViewBuilder itemContent: @escaping (Data.Element) -> Content,
-                @MenuItemBuilder contextMenu: @escaping (Set<Data.Element>) -> [MenuItem]) {
+                @MenuItemBuilder contextMenu: @escaping (Set<Data.Element>) -> [MenuItem],
+                primaryAction: @escaping (Set<Data.Element.ID>) -> Void) {
         self.items = items
         self.selection = selection
         self.layout = layout
         self.itemContent = itemContent
         self.contextMenu = contextMenu
+        self.primaryAction = primaryAction
     }
 
     public func makeCoordinator() -> Coordinator {

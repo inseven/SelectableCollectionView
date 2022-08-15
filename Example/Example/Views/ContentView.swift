@@ -38,6 +38,8 @@ struct ContentView: View {
                             model.items.removeAll { selection.contains($0) }
                         }
                     }
+                } primaryAction: { selection in
+                    print("Double-Click \(selection)")
                 }
             } else {
                 Table(model.filteredItems, selection: $model.selection) {
@@ -49,9 +51,9 @@ struct ContentView: View {
         .searchable(text: $model.filter)
         .toolbar {
             LayoutToolbar(mode: $model.layoutMode)
-            SelectionToolbar(id: "selection")
-            StateToolbar(id: "state")
-            ItemsToolbar(id: "items")
+            SelectionToolbar()
+            StateToolbar()
+            ItemsToolbar()
         }
         .navigationSubtitle("\(model.items.count) items")
         .onAppear {
