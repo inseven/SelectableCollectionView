@@ -24,10 +24,12 @@ class ColumnCollectionViewLayout: NSCollectionViewFlowLayout {
 
     let spacing: CGFloat
     let columns: Int
+    let edgeInsets: NSEdgeInsets
 
-    init(spacing: CGFloat, columns: Int) {
+    init(spacing: CGFloat, columns: Int, edgeInsets: NSEdgeInsets) {
         self.spacing = spacing
         self.columns = columns
+        self.edgeInsets = edgeInsets
         super.init()
     }
 
@@ -46,11 +48,12 @@ class ColumnCollectionViewLayout: NSCollectionViewFlowLayout {
         else {
             return
         }
-        let usableWidth = size.width + spacing
+        let usableWidth = size.width + spacing - edgeInsets.left - edgeInsets.right
         let itemWidth = floor(usableWidth / CGFloat(columns)) - spacing
         itemSize = CGSize(width: itemWidth, height: itemWidth)
         minimumLineSpacing = spacing
         minimumInteritemSpacing = 0
+        sectionInset = edgeInsets
     }
 
 }

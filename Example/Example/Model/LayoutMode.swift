@@ -58,7 +58,9 @@ enum LayoutMode: Equatable, Identifiable, CaseIterable {
             return FixedItemSizeLayout(spacing: 16,
                                        size: CGSize(width: 200.0, height: 200.0))
         case .column:
-            return ColumnLayout(spacing: 8.0, columns: 5)
+            return ColumnLayout(spacing: 16.0,
+                                columns: 5,
+                                edgeInsets: NSEdgeInsets(top: 16.0, left: 16.0, bottom: 16.0, right: 16.0))
         case .table:
             return nil
         }

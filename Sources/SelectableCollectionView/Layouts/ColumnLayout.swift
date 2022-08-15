@@ -20,14 +20,24 @@
 
 import SwiftUI
 
+extension NSEdgeInsets: Equatable {
+
+    public static func == (lhs: NSEdgeInsets, rhs: NSEdgeInsets) -> Bool {
+        return NSEdgeInsetsEqual(lhs, rhs)
+    }
+
+}
+
 public struct ColumnLayout: Layoutable {
 
     let spacing: CGFloat
     let columns: Int
+    let edgeInsets: NSEdgeInsets
 
-    public init(spacing: CGFloat, columns: Int) {
+    public init(spacing: CGFloat, columns: Int, edgeInsets: NSEdgeInsets) {
         self.spacing = spacing
         self.columns = columns
+        self.edgeInsets = edgeInsets
     }
 
     public func hash(into hasher: inout Hasher) {
@@ -36,7 +46,7 @@ public struct ColumnLayout: Layoutable {
     }
 
     public func makeLayout() -> NSCollectionViewLayout {
-        return ColumnCollectionViewLayout(spacing: spacing, columns: columns)
+        return ColumnCollectionViewLayout(spacing: spacing, columns: columns, edgeInsets: edgeInsets)
     }
 
 }
