@@ -28,6 +28,7 @@ class Model: ObservableObject {
     @Published var selection = Set<Item.ID>()
     @Published var filter = ""
     @Published var filteredItems: [Item] = []
+    @Published var isPainted = false
 
     private var cancellables: Set<AnyCancellable> = []
 

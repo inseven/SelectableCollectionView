@@ -26,13 +26,12 @@ import SelectableCollectionView
 struct ContentView: View {
 
     @StateObject var model = Model()
-    @State var isPainted = false
 
-    var layout = FixedItemSizeLayout(spacing: 16, size: CGSize(width: 200, height: 100))
+    let layout = FixedItemSizeLayout(spacing: 16, size: CGSize(width: 200, height: 100))
 
     var body: some View {
         SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
-            Cell(item: item, isPainted: isPainted)
+            Cell(item: item, isPainted: model.isPainted)
         } contextMenu: { selection in
             if !selection.isEmpty {
                 MenuItem("Delete") {
@@ -42,65 +41,15 @@ struct ContentView: View {
         }
         .searchable(text: $model.filter)
         .toolbar {
-
-            ToolbarItem {
-                Button {
-                    model.clearSelection()
-                } label: {
-                    Image(systemName: "xmark")
-                }
-                .help("Clear selection")
-                .disabled(model.selection.isEmpty)
-            }
-
-            ToolbarItem {
-                Button {
-                    model.selectRandomItem()
-                } label: {
-                    Image(systemName: "arrow.2.squarepath")
-                }
-                .help("Select random item")
-            }
-
-            ToolbarItem {
-                Button {
-                    model.delete(ids: model.selection)
-                } label: {
-                    Image(systemName: "trash")
-                }
-                .help("Delete selected items")
-                .keyboardShortcut(.delete)
-                .disabled(model.selection.isEmpty)
-            }
-
-            ToolbarItem {
-                Toggle(isOn: $isPainted) {
-                    Image(systemName: "paintbrush.pointed")
-                }
-            }
-
-            ToolbarItem {
-                Button {
-                    model.items.append(Item())
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .help("Add item")
-            }
-
-            ToolbarItem {
-                Button {
-                    model.addManyItems()
-                } label: {
-                    Image(systemName: "infinity")
-                }
-                .help("Add many items (1000)")
-            }
+            SelectionToolbar(id: "selection")
+            StateToolbar(id: "state")
+            ItemsToolbar(id: "items")
         }
         .navigationSubtitle("\(model.items.count) items")
         .onAppear {
             model.run()
         }
+        .environmentObject(model)
     }
 }
 
