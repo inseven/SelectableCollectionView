@@ -44,7 +44,7 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
         func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>, contentForElement element: Element) -> Content? where Element : Hashable, Content : View {
 #warning("TODO: These guards shouldn't be necessary?")
             guard let element = element as? Data.Element,
-                  let content = parent.rowContent(element) as? Content else {
+                  let content = parent.itemContent(element) as? Content else {
                 return nil
             }
             return content
@@ -60,27 +60,21 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
 
     }
 
-#warning("TODO: These should be lets")
     let items: Data
     let selection: Binding<Set<Data.Element.ID>>
     let layout: any Layoutable
-    let rowContent: (Data.Element) -> Content
+    let itemContent: (Data.Element) -> Content
     let contextMenu: (Set<Data.Element>) -> [MenuItem]
-
-    func element(for id: Data.Element.ID) -> Data.Element? {
-#warning("TODO: This doesn't perform well.")
-        return items.first { $0.id == id }
-    }
 
     public init(_ items: Data,
                 selection: Binding<Set<Data.Element.ID>>,
                 layout: any Layoutable,
-                @ViewBuilder rowContent: @escaping (Data.Element) -> Content,
+                @ViewBuilder itemContent: @escaping (Data.Element) -> Content,
                 @MenuItemBuilder contextMenu: @escaping (Set<Data.Element>) -> [MenuItem]) {
         self.items = items
         self.selection = selection
         self.layout = layout
-        self.rowContent = rowContent
+        self.itemContent = itemContent
         self.contextMenu = contextMenu
     }
 
