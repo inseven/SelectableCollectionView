@@ -22,6 +22,5 @@ import SwiftUI
 
 struct Item: Hashable, Identifiable {
     let id = UUID()
-    let text: String = String(Int.random(in: 0..<256))
     let color: Color = .random
 }

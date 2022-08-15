@@ -43,7 +43,10 @@ struct ContentView: View {
                 }
             } else {
                 Table(model.filteredItems, selection: $model.selection) {
-                    TableColumn("Title", value: \.text)
+                    TableColumn("") { item in
+                        Image(systemName: "circle.fill")
+                            .foregroundColor(item.color)
+                    }
                     TableColumn("Color", value: \.color.description)
                 }
             }

@@ -80,7 +80,7 @@ class Model: ObservableObject {
         $filter
             .combineLatest($items)
             .compactMap { (filter, items) in
-                return items.filter { filter.isEmpty || $0.text.localizedCaseInsensitiveContains(filter) }
+                return items.filter { filter.isEmpty || $0.color.hexCode.localizedCaseInsensitiveContains(filter) }
             }
             .receive(on: DispatchQueue.main)
             .sink { filteredItems in

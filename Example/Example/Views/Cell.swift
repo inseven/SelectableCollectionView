@@ -34,7 +34,9 @@ struct Cell: View {
             Spacer()
             HStack {
                 Spacer()
-                Text(item.text)
+                Image(systemName: "circle.fill")
+                    .foregroundColor(item.color)
+                Text("#\(item.color.hexCode)")
                 Spacer()
             }
             Spacer()
