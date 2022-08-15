@@ -24,10 +24,12 @@ public struct FixedItemSizeLayout: Layoutable {
 
     let spacing: CGFloat
     let size: CGSize
+    let contentInsets: NSDirectionalEdgeInsets
 
-    public init(spacing: CGFloat, size: CGSize) {
+    public init(spacing: CGFloat, size: CGSize, contentInsets: NSDirectionalEdgeInsets) {
         self.spacing = spacing
         self.size = size
+        self.contentInsets = contentInsets
     }
 
     public func hash(into hasher: inout Hasher) {
@@ -37,7 +39,7 @@ public struct FixedItemSizeLayout: Layoutable {
     }
 
     public func makeLayout() -> NSCollectionViewLayout {
-        return FixedItemSizeCollectionViewLayout(spacing: spacing, size: size)
+        return FixedItemSizeCollectionViewLayout(spacing: spacing, size: size, contentInsets: contentInsets)
     }
 
 }

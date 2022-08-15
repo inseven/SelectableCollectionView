@@ -20,14 +20,6 @@
 
 import SwiftUI
 
-extension NSEdgeInsets: Equatable {
-
-    public static func == (lhs: NSEdgeInsets, rhs: NSEdgeInsets) -> Bool {
-        return NSEdgeInsetsEqual(lhs, rhs)
-    }
-
-}
-
 public struct ColumnLayout: Layoutable {
 
     let spacing: CGFloat

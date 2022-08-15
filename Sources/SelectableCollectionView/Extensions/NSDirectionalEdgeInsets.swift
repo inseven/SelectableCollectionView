@@ -20,26 +20,14 @@
 
 import AppKit
 
-class FixedItemSizeCollectionViewLayout: NSCollectionViewCompositionalLayout {
+extension NSDirectionalEdgeInsets: Equatable {
 
-    init(spacing: CGFloat, size: CGSize, contentInsets: NSDirectionalEdgeInsets) {
-
-        let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(size.width), heightDimension: .absolute(size.height))
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(size.height))
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        group.interItemSpacing = .fixed(spacing)
-
-        let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = spacing
-        section.contentInsets = contentInsets
-
-        super.init(section: section)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+#warning("TODO: Floating-point comparison")
+    public static func == (lhs: NSDirectionalEdgeInsets, rhs: NSDirectionalEdgeInsets) -> Bool {
+        return (lhs.top == rhs.top &&
+                lhs.bottom == rhs.bottom &&
+                lhs.leading == rhs.leading &&
+                lhs.trailing == rhs.trailing)
     }
 
 }

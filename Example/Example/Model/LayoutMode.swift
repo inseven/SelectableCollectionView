@@ -24,6 +24,19 @@ import SelectableCollectionView
 
 enum LayoutMode: Equatable, Identifiable, CaseIterable {
 
+    private struct LayoutMetrics {
+        static var interItemSpacing = 6.0
+        static var padding = 9.0
+
+        static var edgeInsets: NSEdgeInsets {
+            return NSEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
+        }
+
+        static var directionalEdgeInsets: NSDirectionalEdgeInsets {
+            return NSDirectionalEdgeInsets(top: padding, leading: padding, bottom: padding, trailing: padding)
+        }
+    }
+
     var id: Self { self }
 
     case fixedItemSize
@@ -55,12 +68,13 @@ enum LayoutMode: Equatable, Identifiable, CaseIterable {
     var layout: (any Layoutable)? {
         switch self {
         case .fixedItemSize:
-            return FixedItemSizeLayout(spacing: 16,
-                                       size: CGSize(width: 200.0, height: 200.0))
+            return FixedItemSizeLayout(spacing: LayoutMetrics.interItemSpacing,
+                                       size: CGSize(width: 200.0, height: 200.0),
+                                       contentInsets: LayoutMetrics.directionalEdgeInsets)
         case .column:
-            return ColumnLayout(spacing: 6.0,
+            return ColumnLayout(spacing: LayoutMetrics.interItemSpacing,
                                 columns: 5,
-                                edgeInsets: NSEdgeInsets(top: 9.0, left: 9.0, bottom: 9.0, right: 9.0))
+                                edgeInsets: LayoutMetrics.edgeInsets)
         case .table:
             return nil
         }
