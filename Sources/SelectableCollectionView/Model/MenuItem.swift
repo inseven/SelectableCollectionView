@@ -19,8 +19,11 @@
 // SOFTWARE.
 
 import Foundation
+import SwiftUI
 
-public struct MenuItem {
+public struct MenuItem: Identifiable {
+
+    public let id = UUID()
 
     let title: String
     let action: () -> Void
@@ -29,4 +32,27 @@ public struct MenuItem {
         self.title = title
         self.action = action
     }
+
+}
+
+extension Array where Element == MenuItem {
+
+    @ViewBuilder func asContextMenu() -> some View {
+        ForEach(self) { menuItem in
+            Button(menuItem.title, action: menuItem.action)
+        }
+    }
+    
+}
+
+extension View {
+
+    public func contextMenu<I>(forSelectionType itemType: I.Type = I.self,
+                                  @MenuItemBuilder menu: @escaping (Set<I>) -> [MenuItem],
+                                  primaryAction: ((Set<I>) -> Void)? = nil) -> some View where I : Hashable {
+        contextMenu(forSelectionType: itemType, menu: { items in
+            menu(items).asContextMenu()
+        }, primaryAction: primaryAction)
+    }
+
 }

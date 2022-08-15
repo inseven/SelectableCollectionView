@@ -39,7 +39,8 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
             guard let elements = elements as? Set<Data.Element> else {
                 return []
             }
-            return parent.contextMenu(elements)
+            let ids = Set(elements.map { $0.id })
+            return parent.contextMenu(ids)
         }
 
         func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>, contentForElement element: Element) -> Content? where Element : Hashable, Content : View {
@@ -73,14 +74,14 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
     let selection: Binding<Set<Data.Element.ID>>
     let layout: any Layoutable
     let itemContent: (Data.Element) -> Content
-    let contextMenu: (Set<Data.Element>) -> [MenuItem]
+    let contextMenu: (Set<Data.Element.ID>) -> [MenuItem]
     let primaryAction: (Set<Data.Element.ID>) -> ()
 
     public init(_ items: Data,
                 selection: Binding<Set<Data.Element.ID>>,
                 layout: any Layoutable,
                 @ViewBuilder itemContent: @escaping (Data.Element) -> Content,
-                @MenuItemBuilder contextMenu: @escaping (Set<Data.Element>) -> [MenuItem],
+                @MenuItemBuilder contextMenu: @escaping (Set<Data.Element.ID>) -> [MenuItem],
                 primaryAction: @escaping (Set<Data.Element.ID>) -> Void) {
         self.items = items
         self.selection = selection

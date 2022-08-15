@@ -27,19 +27,27 @@ struct ContentView: View {
 
     @StateObject var model = Model()
 
+    @MenuItemBuilder func contextMenu(_ selection: Set<Item.ID>) -> [MenuItem] {
+        if !selection.isEmpty {
+            MenuItem("Delete") {
+                model.remove(ids: selection)
+            }
+        }
+    }
+
+    func primaryAction(_ selection: Set<Item.ID>) {
+        model.open(ids: selection)
+    }
+
     var body: some View {
         HStack {
             if let layout = model.layoutMode.layout {
                 SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
                     Cell(item: item, isPainted: model.isPainted)
                 } contextMenu: { selection in
-                    if !selection.isEmpty {
-                        MenuItem("Delete") {
-                            model.items.removeAll { selection.contains($0) }
-                        }
-                    }
+                    contextMenu(selection)
                 } primaryAction: { selection in
-                    model.open(ids: selection)
+                    primaryAction(selection)
                 }
             } else {
                 Table(model.filteredItems, selection: $model.selection) {
@@ -49,6 +57,7 @@ struct ContentView: View {
                     }
                     TableColumn("Color", value: \.color.description)
                 }
+                .contextMenu(forSelectionType: Item.ID.self, menu: contextMenu, primaryAction: primaryAction)
             }
         }
         .searchable(text: $model.filter)

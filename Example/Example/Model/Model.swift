@@ -65,6 +65,10 @@ class Model: ObservableObject {
         }
     }
 
+    @MainActor func remove(ids: Set<Item.ID>) {
+        items.removeAll { selection.contains($0.id) }
+    }
+
     @MainActor func open(ids: Set<Item.ID>) {
         for item in items.filter({ ids.contains($0.id) }) {
             guard let url = URL(string: "https://www.colorhexa.com/\(item.color.hexCode)") else {

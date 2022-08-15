@@ -45,6 +45,16 @@ struct SelectionToolbar: CustomizableToolbarContent {
             .help("Select random item")
         }
 
+        ToolbarItem(id: "open") {
+            Button {
+                model.open(ids: model.selection)
+            } label: {
+                Label("Open", systemImage: "globe")
+            }
+            .keyboardShortcut(.return, modifiers: [])
+            .help("Open selected items in default web browser")
+        }
+
         ToolbarItem(id: "delete") {
             Button {
                 model.delete(ids: model.selection)
