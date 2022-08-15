@@ -1,0 +1,151 @@
+import SwiftUI
+
+#warning("TODO: Rename element to ID to avoid confusion?")
+
+protocol CollectionViewContainerDelegate: NSObject {
+    func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
+                                                   menuItemsForElements elements: Set<Element>) -> [MenuItem]
+    func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
+                                                   contentForElement element: Element) -> Content?
+    func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
+                                                   didUpdateSelection selection: Set<Element>)
+}
+
+public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, NSCollectionViewDelegate, CustomCollectionViewMenuDelegate {
+
+    weak var delegate: CollectionViewContainerDelegate?
+
+    enum Section {
+        case none
+    }
+
+    typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Element>
+    typealias DataSource = NSCollectionViewDiffableDataSource<Section, Element>
+    typealias Cell = ShortcutItemView
+
+    private let scrollView: NSScrollView
+    private let collectionView: CustomCollectionView
+    private var dataSource: DataSource? = nil
+
+    var provider: ((Element) -> Content?)? = nil
+
+#warning("TODO: This is a terrible approach.")
+    init(layout: NSCollectionViewLayout) {
+
+        scrollView = NSScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = true
+        scrollView.autohidesScrollers = false
+
+        collectionView = CustomCollectionView()
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.collectionViewLayout = layout
+        super.init(frame: .zero)
+
+        dataSource = DataSource(collectionView: collectionView) { collectionView, indexPath, item in
+            guard let view = collectionView.makeItem(withIdentifier: ShortcutItemView.identifier, for: indexPath) as? ShortcutItemView,
+                  let content = self.delegate?.collectionViewContainer(self, contentForElement: item)
+            else {
+                return ShortcutItemView()
+            }
+            view.configure(AnyView(content))
+            view.element = item
+            return view
+        }
+
+        self.addSubview(scrollView)
+        NSLayoutConstraint.activate([
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+
+        scrollView.documentView = collectionView
+        collectionView.dataSource = dataSource
+        collectionView.delegate = self
+        collectionView.menuDelegate = self
+
+        let itemNib = NSNib(nibNamed: "ShortcutItemView", bundle: .module)
+        collectionView.register(itemNib, forItemWithIdentifier: ShortcutItemView.identifier)
+        collectionView.register(ShortcutItemView.self, forItemWithIdentifier: ShortcutItemView.identifier)
+
+        collectionView.isSelectable = true
+        collectionView.allowsMultipleSelection = true
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    @MainActor func update(_ items: [Element], selection: Set<Element>) {
+
+        // Update the items.
+        var snapshot = Snapshot()
+        snapshot.appendSections([.none])
+        snapshot.appendItems(items, toSection: Section.none)
+        dataSource!.apply(snapshot, animatingDifferences: true)
+
+        // Update the hosted item content.
+        for item in collectionView.visibleItems() {
+            guard let item = item as? ShortcutItemView,
+                  let element = item.element as? Element else {
+                continue
+            }
+            let content = self.delegate?.collectionViewContainer(self, contentForElement: element)
+            item.configure(AnyView(content))
+        }
+
+        // Update the selection
+        let indexPaths = selection.compactMap { element in
+            return dataSource?.indexPath(for: element)
+        }
+        collectionView.selectionIndexPaths = Set(indexPaths)
+    }
+
+    @objc func menuItem(sender: NSMenuItem) {
+        guard let action = sender.representedObject as? () -> Void else {
+            return
+        }
+        action()
+    }
+
+    func customCollectionView(_ customCollectionView: CustomCollectionView,
+                              contextMenuForSelection _: IndexSet) -> NSMenu? {
+
+        guard let menuItems = delegate?.collectionViewContainer(self, menuItemsForElements: selectedElements),
+              !menuItems.isEmpty
+        else {
+            return nil
+        }
+        let menu = NSMenu()
+        menu.items = menuItems.map { item in
+            let menuItem = NSMenuItem(title: item.title, action: #selector(menuItem(sender:)), keyEquivalent: "")
+            menuItem.representedObject = item.action
+            return menuItem
+        }
+        return menu
+    }
+
+    var selectedElements: Set<Element> {
+        return Set(collectionView.selectionIndexPaths.compactMap { dataSource?.itemIdentifier(for: $0) })
+    }
+
+    func updateSelection() {
+        delegate?.collectionViewContainer(self, didUpdateSelection: selectedElements)
+    }
+
+    func customCollectionView(_ customCollectionView: CustomCollectionView, didUpdateSelection selection: Set<IndexPath>) {
+        updateSelection()
+    }
+
+    public func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
+        updateSelection()
+    }
+
+    public func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>) {
+        updateSelection()
+    }
+
+}
