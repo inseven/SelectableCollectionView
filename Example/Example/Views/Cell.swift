@@ -24,9 +24,14 @@ import SwiftUI
 struct Cell: View {
 
     private struct LayoutMetrics {
-        static var cornerRadius = 10.0
+        static var cornerRadius = 9.0
+        static var selectionSpacing = 2.0
         static var selectionLineWidth = 3.0
         static var selectionCornerRadius = 14.0
+
+        static var cellPadding: CGFloat {
+            return selectionSpacing + selectionLineWidth
+        }
     }
 
     @Environment(\.isSelected) var isSelected
@@ -53,7 +58,7 @@ struct Cell: View {
         }
         .background(isPainted ? .mint : item.color.opacity(0.4))
         .clipShape(RoundedRectangle(cornerRadius: LayoutMetrics.cornerRadius))
-        .padding(4)
+        .padding(LayoutMetrics.cellPadding)
         .overlay(RoundedRectangle(cornerRadius: LayoutMetrics.selectionCornerRadius)
             .strokeBorder(strokeColor, lineWidth: LayoutMetrics.selectionLineWidth))
     }
