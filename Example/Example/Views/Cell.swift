@@ -23,11 +23,21 @@ import SwiftUI
 
 struct Cell: View {
 
+    private struct LayoutMetrics {
+        static var cornerRadius = 10.0
+        static var selectionLineWidth = 3.0
+        static var selectionCornerRadius = 14.0
+    }
+
     @Environment(\.isSelected) var isSelected
     @Environment(\.highlightState) var highlightState
 
     var item: Item
     var isPainted: Bool
+
+    var strokeColor: Color {
+        return isSelected || highlightState == .forSelection ? Color.accentColor : Color.clear
+    }
 
     var body: some View {
         VStack {
@@ -42,7 +52,9 @@ struct Cell: View {
             Spacer()
         }
         .background(isPainted ? .mint : item.color.opacity(0.4))
+        .clipShape(RoundedRectangle(cornerRadius: LayoutMetrics.cornerRadius))
         .padding(4)
-        .border(isSelected || highlightState == .forSelection ? Color.accentColor : Color.clear, width: 3)
+        .overlay(RoundedRectangle(cornerRadius: LayoutMetrics.selectionCornerRadius)
+            .strokeBorder(strokeColor, lineWidth: LayoutMetrics.selectionLineWidth))
     }
 }
