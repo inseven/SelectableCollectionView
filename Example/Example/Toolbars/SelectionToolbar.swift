@@ -32,7 +32,7 @@ struct SelectionToolbar: CustomizableToolbarContent {
             Button {
                 model.clearSelection()
             } label: {
-                Image(systemName: "xmark")
+                Label("Clear Selection", systemImage: "xmark")
             }
             .help("Clear selection")
             .disabled(model.selection.isEmpty)
@@ -42,7 +42,7 @@ struct SelectionToolbar: CustomizableToolbarContent {
             Button {
                 model.selectRandomItem()
             } label: {
-                Image(systemName: "arrow.2.squarepath")
+                Label("Random Selection", systemImage: "arrow.2.squarepath")
             }
             .help("Select random item")
         }
@@ -51,7 +51,7 @@ struct SelectionToolbar: CustomizableToolbarContent {
             Button {
                 model.delete(ids: model.selection)
             } label: {
-                Image(systemName: "trash")
+                Label("Delete", systemImage: "trash")
             }
             .help("Delete selected items")
             .keyboardShortcut(.delete)

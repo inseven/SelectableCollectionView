@@ -32,7 +32,7 @@ struct ItemsToolbar: CustomizableToolbarContent {
             Button {
                 model.items.append(Item())
             } label: {
-                Image(systemName: "plus")
+                Label("Add", systemImage: "plus")
             }
             .help("Add item")
         }
@@ -41,7 +41,7 @@ struct ItemsToolbar: CustomizableToolbarContent {
             Button {
                 model.addManyItems()
             } label: {
-                Image(systemName: "infinity")
+                Label("Add Many", systemImage: "infinity")
             }
             .help("Add many items (1000)")
         }

@@ -30,8 +30,9 @@ struct StateToolbar: CustomizableToolbarContent {
 
         ToolbarItem(id: "painted") {
             Toggle(isOn: $model.isPainted) {
-                Image(systemName: "paintbrush.pointed")
+                Label("Paint Items", systemImage: "paintbrush.pointed")
             }
+            .help("Paint all the items the same color")
         }
 
     }

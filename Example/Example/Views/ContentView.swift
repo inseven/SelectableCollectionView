@@ -50,6 +50,7 @@ struct ContentView: View {
             model.run()
         }
         .environmentObject(model)
+        .frame(minWidth: 400, minHeight: 400)
     }
 }
 
