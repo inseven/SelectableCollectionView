@@ -90,7 +90,7 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
 
     public func updateNSView(_ collectionView: CollectionViewContainer<Element, Content>, context: Context) {
         context.coordinator.parent = self
-        // TODO: We shouldn't need to copy this into an array?
+#warning("TODO: We shouldn't need to copy this into an array?")
         let selectedElements = items.filter { selection.wrappedValue.contains($0.id) }
         collectionView.update(Array(items), selection: Set(selectedElements))
     }
