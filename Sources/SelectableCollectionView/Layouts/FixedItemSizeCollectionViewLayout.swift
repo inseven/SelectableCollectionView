@@ -20,24 +20,25 @@
 
 import AppKit
 
-public struct FixedItemSizeLayout: Layoutable {
+class FixedItemSizeCollectionViewLayout: NSCollectionViewCompositionalLayout {
 
-    let spacing: CGFloat
-    let size: CGSize
+    init(spacing: CGFloat, size: CGSize) {
 
-    public init(spacing: CGFloat, size: CGSize) {
-        self.spacing = spacing
-        self.size = size
+        let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(size.width), heightDimension: .absolute(size.height))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(size.height))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        group.interItemSpacing = .fixed(spacing)
+
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = spacing
+
+        super.init(section: section)
     }
 
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(spacing)
-        hasher.combine(size.width)
-        hasher.combine(size.height)
-    }
-
-    public func makeLayout() -> NSCollectionViewLayout {
-        return FixedItemSizeCollectionViewLayout(spacing: spacing, size: size)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
 }

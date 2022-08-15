@@ -18,26 +18,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import AppKit
+import SwiftUI
 
-public struct FixedItemSizeLayout: Layoutable {
+import SelectableCollectionView
 
-    let spacing: CGFloat
-    let size: CGSize
+enum LayoutMode: Equatable, Identifiable, CaseIterable {
 
-    public init(spacing: CGFloat, size: CGSize) {
-        self.spacing = spacing
-        self.size = size
+    var id: Self { self }
+
+    case fixedItemSize
+    case column
+    case table
+
+    var systemImage: String {
+        switch self {
+        case .fixedItemSize:
+            return "square"
+        case .column:
+            return "squareshape.dashed.squareshape"
+        case .table:
+            return "tablecells"
+        }
     }
 
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(spacing)
-        hasher.combine(size.width)
-        hasher.combine(size.height)
+    var help: String {
+        switch self {
+        case .fixedItemSize:
+            return "Fixed Item Size"
+        case .column:
+            return "Column"
+        case .table:
+            return "Table"
+        }
     }
 
-    public func makeLayout() -> NSCollectionViewLayout {
-        return FixedItemSizeCollectionViewLayout(spacing: spacing, size: size)
+    var layout: (any Layoutable)? {
+        switch self {
+        case .fixedItemSize:
+            return FixedItemSizeLayout(spacing: 16,
+                                       size: CGSize(width: 200.0, height: 200.0))
+        case .column:
+            return ColumnLayout(spacing: 16.0, columns: 5)
+        case .table:
+            return nil
+        }
     }
 
 }

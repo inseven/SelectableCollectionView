@@ -18,27 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import AppKit
+import SwiftUI
 
-class FlexibleCollectionViewLayout: NSCollectionViewCompositionalLayout {
+struct LayoutToolbar: CustomizableToolbarContent {
 
-    init(spacing: CGFloat, size: CGSize) {
+    @Binding var mode: LayoutMode
 
-        let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(size.width), heightDimension: .fractionalHeight(1.0))
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+    var body: some CustomizableToolbarContent {
 
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(size.height))
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        group.interItemSpacing = .fixed(spacing)
+        ToolbarItem(id: "mode") {
+            Picker(selection: $mode) {
+                ForEach(LayoutMode.allCases) { mode in
+                    Image(systemName: mode.systemImage)
+                        .help(mode.help)
+                        .tag(mode)
+                }
+            } label: {
+            }
+            .pickerStyle(.inline)
+        }
 
-        let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = spacing
-
-        super.init(section: section)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
 }

@@ -22,6 +22,8 @@
 		D841634B28AA26FE007812D8 /* ExampleUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D841634A28AA26FE007812D8 /* ExampleUITestsLaunchTests.swift */; };
 		D841635A28AA2819007812D8 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = D841635928AA2818007812D8 /* Color.swift */; };
 		D841635D28AA283B007812D8 /* SelectableCollectionView in Frameworks */ = {isa = PBXBuildFile; productRef = D841635C28AA283B007812D8 /* SelectableCollectionView */; };
+		D8C5D20728AACB2B001443BA /* LayoutMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C5D20628AACB2B001443BA /* LayoutMode.swift */; };
+		D8C5D20928AACB75001443BA /* LayoutToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C5D20828AACB75001443BA /* LayoutToolbar.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +63,8 @@
 		D841634A28AA26FE007812D8 /* ExampleUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		D841635828AA2726007812D8 /* SelectableCollectionView */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SelectableCollectionView; path = ..; sourceTree = "<group>"; };
 		D841635928AA2818007812D8 /* Color.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
+		D8C5D20628AACB2B001443BA /* LayoutMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutMode.swift; sourceTree = "<group>"; };
+		D8C5D20828AACB75001443BA /* LayoutToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutToolbar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +105,7 @@
 			isa = PBXGroup;
 			children = (
 				D825950028AA3F7800A36359 /* Item.swift */,
+				D8C5D20628AACB2B001443BA /* LayoutMode.swift */,
 				D82594FB28AA3E3500A36359 /* Model.swift */,
 			);
 			path = Model;
@@ -110,6 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				D825950328AA443A00A36359 /* ItemsToolbar.swift */,
+				D8C5D20828AACB75001443BA /* LayoutToolbar.swift */,
 				D825950528AA45ED00A36359 /* SelectionToolbar.swift */,
 				D825950828AA46C000A36359 /* StateToolbar.swift */,
 			);
@@ -339,6 +345,8 @@
 				D841632F28AA26FC007812D8 /* ContentView.swift in Sources */,
 				D825950628AA45ED00A36359 /* SelectionToolbar.swift in Sources */,
 				D841632D28AA26FC007812D8 /* ExampleApp.swift in Sources */,
+				D8C5D20928AACB75001443BA /* LayoutToolbar.swift in Sources */,
+				D8C5D20728AACB2B001443BA /* LayoutMode.swift in Sources */,
 				D825950428AA443A00A36359 /* ItemsToolbar.swift in Sources */,
 				D841635A28AA2819007812D8 /* Color.swift in Sources */,
 				D825950928AA46C000A36359 /* StateToolbar.swift in Sources */,

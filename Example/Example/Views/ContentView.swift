@@ -25,39 +25,30 @@ import SelectableCollectionView
 
 struct ContentView: View {
 
-    enum Mode: Equatable {
-        case flexible
-        case fixed
-    }
-
     @StateObject var model = Model()
-    @State var mode: Mode = .fixed
-
-    @State var layout: any Layoutable = FixedItemSizeLayout(spacing: 16, size: CGSize(width: 200, height: 100))
 
     var body: some View {
-        SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
-            Cell(item: item, isPainted: model.isPainted)
-        } contextMenu: { selection in
-            if !selection.isEmpty {
-                MenuItem("Delete") {
-                    model.items.removeAll { selection.contains($0) }
+        HStack {
+            if let layout = model.layoutMode.layout {
+                SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
+                    Cell(item: item, isPainted: model.isPainted)
+                } contextMenu: { selection in
+                    if !selection.isEmpty {
+                        MenuItem("Delete") {
+                            model.items.removeAll { selection.contains($0) }
+                        }
+                    }
+                }
+            } else {
+                Table(model.filteredItems, selection: $model.selection) {
+                    TableColumn("Title", value: \.text)
+                    TableColumn("Color", value: \.color.description)
                 }
             }
         }
         .searchable(text: $model.filter)
         .toolbar {
-            ToolbarItem(id: "mode") {
-                Picker(selection: $mode) {
-                    Image(systemName: "square.grid.2x2")
-                        .tag(Mode.fixed)
-                    Image(systemName: "rectangle.grid.2x2")
-                        .tag(Mode.flexible)
-                } label: {
-
-                }
-                .pickerStyle(.inline)
-            }
+            LayoutToolbar(mode: $model.layoutMode)
             SelectionToolbar(id: "selection")
             StateToolbar(id: "state")
             ItemsToolbar(id: "items")
@@ -65,18 +56,6 @@ struct ContentView: View {
         .navigationSubtitle("\(model.items.count) items")
         .onAppear {
             model.run()
-        }
-        .onChange(of: mode) { mode in
-            switch mode {
-            case .flexible:
-                layout = FixedItemSizeLayout(spacing: 16,
-                                             size: CGSize(width: 200.0, height: 100.0))
-            case .fixed:
-                layout = GridLayout(minimumItemSize: CGSize(width: 100.0, height: 100.0),
-                                    maximumItemSize: CGSize(width: 200.0, height: 200.0),
-                                    minimumLineSpacing: 16.0,
-                                    minimumInterItemSpacing: 16.0)
-            }
         }
         .environmentObject(model)
         .frame(minWidth: 400, minHeight: 400)

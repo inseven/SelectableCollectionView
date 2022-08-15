@@ -20,25 +20,37 @@
 
 import AppKit
 
-class FixedCollectionViewLayout: NSCollectionViewCompositionalLayout {
+class ColumnCollectionViewLayout: NSCollectionViewFlowLayout {
 
-    init(spacing: CGFloat, size: CGSize) {
+    let spacing: CGFloat
+    let columns: Int
 
-        let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(size.width), heightDimension: .fractionalHeight(1.0))
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(size.height))
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        group.interItemSpacing = .fixed(spacing)
-
-        let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = spacing
-
-        super.init(section: section)
+    init(spacing: CGFloat, columns: Int) {
+        self.spacing = spacing
+        self.columns = columns
+        super.init()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    public override func prepare() {
+        super.prepare()
+        updateItemSize()
+    }
+
+    func updateItemSize() {
+        guard let size = self.collectionView?.bounds.size,
+              size != .zero
+        else {
+            return
+        }
+        let usableWidth = size.width + spacing
+        let itemWidth = floor(usableWidth / CGFloat(columns)) - spacing
+        itemSize = CGSize(width: itemWidth, height: itemWidth)
+        minimumLineSpacing = spacing
+        minimumInteritemSpacing = 0
     }
 
 }

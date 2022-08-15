@@ -20,6 +20,7 @@
 
 import AppKit
 
+#warning("TODO: This needs to be equatable")
 public protocol Layoutable: Hashable {
 
     func makeLayout() -> NSCollectionViewLayout

@@ -28,6 +28,7 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
     public class Coordinator: NSObject, CollectionViewContainerDelegate {
 
         var parent: SelectableCollectionView<Data, Content>
+        var collectionViewLayoutHash: Int = 0
 
         init(_ parent: SelectableCollectionView<Data, Content>) {
             self.parent = parent
@@ -92,7 +93,13 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
         context.coordinator.parent = self
 #warning("TODO: We shouldn't need to copy this into an array?")
         let selectedElements = items.filter { selection.wrappedValue.contains($0.id) }
-        collectionView.update(Array(items), selection: Set(selectedElements), layout: layout)
+        collectionView.update(Array(items), selection: Set(selectedElements))
+
+        if context.coordinator.collectionViewLayoutHash != layout.hashValue {
+            let collectionViewLayout = layout.makeLayout()
+            collectionView.updateLayout(collectionViewLayout)
+            context.coordinator.collectionViewLayoutHash = layout.hashValue
+        }
     }
 
 }

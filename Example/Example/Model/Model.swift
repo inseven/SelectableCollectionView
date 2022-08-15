@@ -29,6 +29,7 @@ class Model: ObservableObject {
     @Published var filter = ""
     @Published var filteredItems: [Item] = []
     @Published var isPainted = false
+    @Published var layoutMode: LayoutMode = .column
 
     private var cancellables: Set<AnyCancellable> = []
 

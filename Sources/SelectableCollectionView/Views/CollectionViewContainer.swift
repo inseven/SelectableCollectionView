@@ -98,7 +98,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
         fatalError("init(coder:) has not been implemented")
     }
 
-    @MainActor func update(_ items: [Element], selection: Set<Element>, layout: any Layoutable) {
+    @MainActor func update(_ items: [Element], selection: Set<Element>) {
 
         // Update the items.
         var snapshot = Snapshot()
@@ -121,8 +121,11 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
             return dataSource?.indexPath(for: element)
         }
         collectionView.selectionIndexPaths = Set(indexPaths)
-        
-        collectionView.animator().collectionViewLayout = layout.makeLayout()
+
+    }
+
+    @MainActor func updateLayout(_ layout: NSCollectionViewLayout) {
+        collectionView.animator().collectionViewLayout = layout
     }
 
     @objc func menuItem(sender: NSMenuItem) {
@@ -167,6 +170,10 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
 
     public func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>) {
         updateSelection()
+    }
+
+    var collectionViewLayout: NSCollectionViewLayout? {
+        return collectionView.collectionViewLayout
     }
 
 }
