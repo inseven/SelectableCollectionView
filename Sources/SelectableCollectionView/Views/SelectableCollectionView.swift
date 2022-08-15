@@ -60,12 +60,12 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
 
     }
 
-    var items: Data
-    var selection: Binding<Set<Data.Element.ID>>
-    var spacing: CGFloat
-    var size: CGSize
-    var rowContent: (Data.Element) -> Content
-    var contextMenu: (Set<Data.Element>) -> [MenuItem]
+#warning("TODO: These should be lets")
+    let items: Data
+    let selection: Binding<Set<Data.Element.ID>>
+    let layout: any Layoutable
+    let rowContent: (Data.Element) -> Content
+    let contextMenu: (Set<Data.Element>) -> [MenuItem]
 
     func element(for id: Data.Element.ID) -> Data.Element? {
 #warning("TODO: This doesn't perform well.")
@@ -73,15 +73,13 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
     }
 
     public init(_ items: Data,
-         selection: Binding<Set<Data.Element.ID>>,
-         spacing: CGFloat,
-         size: CGSize,
-         @ViewBuilder rowContent: @escaping (Data.Element) -> Content,
-         @MenuItemBuilder contextMenu: @escaping (Set<Data.Element>) -> [MenuItem]) {
+                selection: Binding<Set<Data.Element.ID>>,
+                layout: any Layoutable,
+                @ViewBuilder rowContent: @escaping (Data.Element) -> Content,
+                @MenuItemBuilder contextMenu: @escaping (Set<Data.Element>) -> [MenuItem]) {
         self.items = items
         self.selection = selection
-        self.spacing = spacing
-        self.size = size
+        self.layout = layout
         self.rowContent = rowContent
         self.contextMenu = contextMenu
     }
@@ -91,7 +89,7 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
     }
 
     public func makeNSView(context: Context) -> CollectionViewContainer<Element, Content> {
-        let collectionView = CollectionViewContainer<Element, Content>(layout: IconCollectionViewLayout(spacing: spacing, size: size))
+        let collectionView = CollectionViewContainer<Element, Content>(layout: layout.makeLayout())
         collectionView.delegate = context.coordinator
         return collectionView
     }

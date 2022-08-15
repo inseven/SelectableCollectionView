@@ -49,7 +49,6 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
 
     var provider: ((Element) -> Content?)? = nil
 
-#warning("TODO: This is a terrible approach.")
     init(layout: NSCollectionViewLayout) {
 
         scrollView = NSScrollView()

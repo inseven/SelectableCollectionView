@@ -23,20 +23,15 @@ import SwiftUI
 
 import SelectableCollectionView
 
-struct Item: Hashable, Identifiable {
-    let id = UUID()
-    let text: String = String(Int.random(in: 0..<256))
-    let color: Color = .random
-}
-
 struct ContentView: View {
 
     @StateObject var model = Model()
     @State var isPainted = false
 
+    var layout = FixedItemSizeLayout(spacing: 16, size: CGSize(width: 200, height: 100))
+
     var body: some View {
-#warning("TODO: Separate out into layout metrics")
-        SelectableCollectionView(model.filteredItems, selection: $model.selection, spacing: 16, size: CGSize(width: 200, height: 100)) { item in
+        SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
             Cell(item: item, isPainted: isPainted)
         } contextMenu: { selection in
             if !selection.isEmpty {
