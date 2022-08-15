@@ -29,96 +29,15 @@ struct Item: Hashable, Identifiable {
     let color: Color = .random
 }
 
-struct CollectionViewCell: View {
-
-    @Environment(\.isSelected) var isSelected
-    @Environment(\.highlightState) var highlightState
-
-    var item: Item
-    var isRed: Bool
-
-    var body: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Text(item.text)
-                Spacer()
-            }
-            Spacer()
-        }
-        .background(isRed ? Color.red : item.color.opacity(0.4))
-        .padding(4)
-        .border(isSelected || highlightState == .forSelection ? Color.accentColor : Color.clear, width: 3)
-    }
-}
-
-#warning("TODO: What thread is the filter running on?")
-class ContentViewModel: ObservableObject {
-
-    @Published var items = [Item()]
-    @Published var selection = Set<Item.ID>()
-    @Published var filter = ""
-    @Published var filteredItems: [Item] = []
-
-    private var cancellables: Set<AnyCancellable> = []
-
-    @MainActor func selectRandomItem() {
-        guard let item = items.randomElement() else {
-            return
-        }
-        selection = Set([item.id])
-    }
-
-    @MainActor func clearSelection() {
-        selection = Set()
-    }
-
-    @MainActor func delete(ids: Set<Item.ID>) {
-        items.removeAll { ids.contains($0.id) }
-    }
-
-    @MainActor func addManyItems() {
-        for _ in 0..<1000 {
-            items.append(Item())
-        }
-    }
-
-    @MainActor func run() {
-
-        // Update the filter.
-        $filter
-            .combineLatest($items)
-            .compactMap { (filter, items) in
-                return items.filter { filter.isEmpty || $0.text.localizedCaseInsensitiveContains(filter) }
-            }
-            .receive(on: DispatchQueue.main)
-            .sink { filteredItems in
-                self.filteredItems = filteredItems
-            }
-            .store(in: &cancellables)
-
-        // Print the selection.
-        $selection
-            .receive(on: DispatchQueue.main)
-            .sink { selection in
-                print("selection = \(selection)")
-            }
-            .store(in: &cancellables)
-
-    }
-
-}
-
 struct ContentView: View {
 
-    @StateObject var model = ContentViewModel()
-    @State var isRed = false
+    @StateObject var model = Model()
+    @State var isPainted = false
 
     var body: some View {
 #warning("TODO: Separate out into layout metrics")
         SelectableCollectionView(model.filteredItems, selection: $model.selection, spacing: 16, size: CGSize(width: 200, height: 100)) { item in
-            CollectionViewCell(item: item, isRed: isRed)
+            Cell(item: item, isPainted: isPainted)
         } contextMenu: { selection in
             if !selection.isEmpty {
                 MenuItem("Delete") {
@@ -160,7 +79,7 @@ struct ContentView: View {
             }
 
             ToolbarItem {
-                Toggle(isOn: $isRed) {
+                Toggle(isOn: $isPainted) {
                     Image(systemName: "paintbrush.pointed")
                 }
             }
