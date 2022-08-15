@@ -30,6 +30,7 @@ class Model: ObservableObject {
     @Published var filteredItems: [Item] = []
     @Published var isPainted = false
     @Published var layoutMode: LayoutMode = .column
+    @Published var subtitle: String = ""
 
     private var cancellables: Set<AnyCancellable> = []
 
@@ -73,6 +74,16 @@ class Model: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { selection in
                 print("selection = \(selection)")
+            }
+            .store(in: &cancellables)
+
+        // Generate a subtitle summarizing the number of items.
+        $items
+            .map { $0.count }
+            .map { "\($0) items" }
+            .receive(on: DispatchQueue.main)
+            .sink { subtitle in
+                self.subtitle = subtitle
             }
             .store(in: &cancellables)
 

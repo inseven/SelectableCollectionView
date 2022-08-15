@@ -55,7 +55,7 @@ struct ContentView: View {
             StateToolbar()
             ItemsToolbar()
         }
-        .navigationSubtitle("\(model.items.count) items")
+        .navigationSubtitle(model.subtitle)
         .onAppear {
             model.run()
         }
