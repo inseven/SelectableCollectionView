@@ -39,7 +39,7 @@ struct ContentView: View {
                         }
                     }
                 } primaryAction: { selection in
-                    print("Double-Click \(selection)")
+                    model.open(ids: selection)
                 }
             } else {
                 Table(model.filteredItems, selection: $model.selection) {

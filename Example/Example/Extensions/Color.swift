@@ -21,11 +21,18 @@
 import SwiftUI
 
 extension Color {
+
     static var random: Color {
-        return Color(
-            red: .random(in: 0...1),
-            green: .random(in: 0...1),
-            blue: .random(in: 0...1)
-        )
+        return Color(red: .random(in: 0...1),
+                     green: .random(in: 0...1),
+                     blue: .random(in: 0...1))
     }
+
+    var hexCode: String {
+        let description = description
+        let start = description.index(description.startIndex, offsetBy: 1)
+        let end = description.index(description.endIndex, offsetBy: -2)
+        return String(description[start..<end])
+    }
+
 }
