@@ -92,7 +92,7 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
         context.coordinator.parent = self
 #warning("TODO: We shouldn't need to copy this into an array?")
         let selectedElements = items.filter { selection.wrappedValue.contains($0.id) }
-        collectionView.update(Array(items), selection: Set(selectedElements))
+        collectionView.update(Array(items), selection: Set(selectedElements), layout: layout)
     }
 
 }

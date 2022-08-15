@@ -20,7 +20,7 @@
 
 import AppKit
 
-class IconCollectionViewLayout: NSCollectionViewCompositionalLayout {
+class FixedCollectionViewLayout: NSCollectionViewCompositionalLayout {
 
     init(spacing: CGFloat, size: CGSize) {
 

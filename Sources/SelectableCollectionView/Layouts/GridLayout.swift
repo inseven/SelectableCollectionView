@@ -20,24 +20,46 @@
 
 import AppKit
 
-public struct FixedItemSizeLayout: Layoutable {
+extension Hasher {
 
-    let spacing: CGFloat
-    let size: CGSize
+    mutating func combine(_ size: CGSize) {
+        combine(size.width)
+        combine(size.height)
+    }
 
-    public init(spacing: CGFloat, size: CGSize) {
-        self.spacing = spacing
-        self.size = size
+}
+
+public struct GridLayout: Layoutable {
+
+    let minimumItemSize: CGSize
+    let maximumItemSize: CGSize
+    let minimumLineSpacing: CGFloat
+    let minimumInterItemSpacing: CGFloat
+
+    public init(minimumItemSize: CGSize = .zero,
+                maximumItemSize: CGSize = .zero,
+                minimumLineSpacing: CGFloat = 0.0,
+                minimumInterItemSpacing: CGFloat = 0.0) {
+        self.minimumItemSize = minimumItemSize
+        self.maximumItemSize = maximumItemSize
+        self.minimumLineSpacing = minimumLineSpacing
+        self.minimumInterItemSpacing = minimumInterItemSpacing
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(spacing)
-        hasher.combine(size.width)
-        hasher.combine(size.height)
+        hasher.combine(minimumItemSize)
+        hasher.combine(maximumItemSize)
+        hasher.combine(minimumLineSpacing)
+        hasher.combine(minimumInterItemSpacing)
     }
 
     public func makeLayout() -> NSCollectionViewLayout {
-        return FlexibleCollectionViewLayout(spacing: spacing, size: size)
+        let layout = NSCollectionViewGridLayout()
+        layout.minimumItemSize = minimumItemSize
+        layout.maximumItemSize = maximumItemSize
+        layout.minimumLineSpacing = minimumLineSpacing
+        layout.minimumInteritemSpacing = minimumInterItemSpacing
+        return layout
     }
 
 }

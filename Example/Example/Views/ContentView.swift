@@ -25,9 +25,15 @@ import SelectableCollectionView
 
 struct ContentView: View {
 
-    @StateObject var model = Model()
+    enum Mode: Equatable {
+        case flexible
+        case fixed
+    }
 
-    let layout = FixedItemSizeLayout(spacing: 16, size: CGSize(width: 200, height: 100))
+    @StateObject var model = Model()
+    @State var mode: Mode = .fixed
+
+    @State var layout: any Layoutable = FixedItemSizeLayout(spacing: 16, size: CGSize(width: 200, height: 100))
 
     var body: some View {
         SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
@@ -41,6 +47,17 @@ struct ContentView: View {
         }
         .searchable(text: $model.filter)
         .toolbar {
+            ToolbarItem(id: "mode") {
+                Picker(selection: $mode) {
+                    Image(systemName: "square.grid.2x2")
+                        .tag(Mode.fixed)
+                    Image(systemName: "rectangle.grid.2x2")
+                        .tag(Mode.flexible)
+                } label: {
+
+                }
+                .pickerStyle(.inline)
+            }
             SelectionToolbar(id: "selection")
             StateToolbar(id: "state")
             ItemsToolbar(id: "items")
@@ -48,6 +65,18 @@ struct ContentView: View {
         .navigationSubtitle("\(model.items.count) items")
         .onAppear {
             model.run()
+        }
+        .onChange(of: mode) { mode in
+            switch mode {
+            case .flexible:
+                layout = FixedItemSizeLayout(spacing: 16,
+                                             size: CGSize(width: 200.0, height: 100.0))
+            case .fixed:
+                layout = GridLayout(minimumItemSize: CGSize(width: 100.0, height: 100.0),
+                                    maximumItemSize: CGSize(width: 200.0, height: 200.0),
+                                    minimumLineSpacing: 16.0,
+                                    minimumInterItemSpacing: 16.0)
+            }
         }
         .environmentObject(model)
         .frame(minWidth: 400, minHeight: 400)

@@ -98,7 +98,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
         fatalError("init(coder:) has not been implemented")
     }
 
-    @MainActor func update(_ items: [Element], selection: Set<Element>) {
+    @MainActor func update(_ items: [Element], selection: Set<Element>, layout: any Layoutable) {
 
         // Update the items.
         var snapshot = Snapshot()
@@ -121,6 +121,8 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
             return dataSource?.indexPath(for: element)
         }
         collectionView.selectionIndexPaths = Set(indexPaths)
+        
+        collectionView.animator().collectionViewLayout = layout.makeLayout()
     }
 
     @objc func menuItem(sender: NSMenuItem) {
