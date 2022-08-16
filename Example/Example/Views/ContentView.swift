@@ -57,11 +57,15 @@ struct ContentView: View {
                     }
                     TableColumn("Color", value: \.color.description)
                 }
-                .contextMenu(forSelectionType: Item.ID.self, menu: contextMenu, primaryAction: primaryAction)
+                .contextMenu(forSelectionType: Item.ID.self) { selection in
+                    contextMenu(selection)
+                } primaryAction: { selection in
+                    primaryAction(selection)
+                }
             }
         }
         .searchable(text: $model.filter)
-        .toolbar {
+        .toolbar(id: "main") {
             LayoutToolbar(mode: $model.layoutMode)
             SelectionToolbar()
             StateToolbar()
