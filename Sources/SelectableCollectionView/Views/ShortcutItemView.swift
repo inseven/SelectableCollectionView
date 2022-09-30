@@ -71,6 +71,12 @@ class ShortcutItemView: NSCollectionViewItem {
         }
     }
 
+#warning("TODO: Not sure if this is necessary")
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        configure(AnyView(EmptyView()))
+    }
+
 #warning("TODO: Called by the data source")
 #warning("TODO: This should take an item")
     func configure(_ content: AnyView) {

@@ -66,7 +66,7 @@ class Model: ObservableObject {
     }
 
     @MainActor func remove(ids: Set<Item.ID>) {
-        items.removeAll { selection.contains($0.id) }
+        items.removeAll { ids.contains($0.id) }
     }
 
     @MainActor func open(ids: Set<Item.ID>) {

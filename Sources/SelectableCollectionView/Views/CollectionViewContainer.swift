@@ -146,10 +146,17 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
             return nil
         }
         let menu = NSMenu()
-        menu.items = menuItems.map { item in
-            let menuItem = NSMenuItem(title: item.title, action: #selector(menuItem(sender:)), keyEquivalent: "")
-            menuItem.representedObject = item.action
-            return menuItem
+        menu.items = menuItems.map { menuItem in
+            switch menuItem.itemType {
+            case .item(let title, let action):
+                let menuItem = NSMenuItem(title: title,
+                                          action: menuItem.isDisabled ? nil : #selector(menuItem(sender:)),
+                                          keyEquivalent: "")
+                menuItem.representedObject = action
+                return menuItem
+            case .separator:
+                return NSMenuItem.separator()
+            }
         }
         return menu
     }

@@ -23,14 +23,54 @@ import SwiftUI
 
 public struct MenuItem: Identifiable {
 
+    enum ItemType {
+        case item(String, () -> Void)
+        case separator
+    }
+
     public let id = UUID()
 
-    let title: String
-    let action: () -> Void
+    let itemType: ItemType
+    var isDisabled: Bool = false
 
     public init(_ title: String, action: @escaping () -> Void) {
-        self.title = title
-        self.action = action
+        self.itemType = .item(title, action)
+    }
+
+    public init(_ title: String, action: @escaping () async -> Void) {
+        self.init(title) {
+            Task {
+                await action()
+            }
+        }
+    }
+
+    init(_ itemType: ItemType) {
+        self.itemType = itemType
+    }
+
+    public func disabled(_ isDisabled: Bool) -> Self {
+        var menuItem = self
+        menuItem.isDisabled = isDisabled
+        return menuItem
+    }
+
+}
+
+extension MenuItem: MenuItemsConvertible {
+
+    public func asMenuItems() -> [MenuItem] {
+        return [self]
+    }
+
+}
+
+public struct Separator: MenuItemsConvertible {
+
+    public init() {}
+
+    public func asMenuItems() -> [MenuItem] {
+        return [MenuItem(.separator)]
     }
 
 }
@@ -39,7 +79,12 @@ extension Array where Element == MenuItem {
 
     @ViewBuilder func asContextMenu() -> some View {
         ForEach(self) { menuItem in
-            Button(menuItem.title, action: menuItem.action)
+            switch menuItem.itemType {
+            case .item(let title, let action):
+                Button(title, action: action)
+            case .separator:
+                Divider()
+            }
         }
     }
     
