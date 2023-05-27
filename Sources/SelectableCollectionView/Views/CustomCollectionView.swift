@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 import AppKit
+import Carbon
 
 protocol CustomCollectionViewMenuDelegate: NSObject {
 
@@ -62,6 +63,22 @@ class CustomCollectionView: NSCollectionView {
            !selectionIndexPaths.isEmpty {
             menuDelegate?.customCollectionView(self, didDoubleClickSelection: selectionIndexPaths)
         }
+    }
+
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == kVK_Space {
+            nextResponder?.keyDown(with: event)
+            return
+        }
+        super.keyDown(with: event)
+    }
+
+    override func keyUp(with event: NSEvent) {
+        if event.keyCode == kVK_Space {
+            nextResponder?.keyUp(with: event)
+            return
+        }
+        super.keyUp(with: event)
     }
 
 }

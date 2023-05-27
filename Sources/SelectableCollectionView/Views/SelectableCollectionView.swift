@@ -68,6 +68,16 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
             parent.primaryAction(ids)
         }
 
+        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
+                                                       keyDown event: NSEvent) -> Bool where Element : Hashable, Content : View {
+            return parent.keyDown(event)
+        }
+
+        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
+                                                       keyUp event: NSEvent) -> Bool where Element : Hashable, Content : View {
+            return parent.keyUp(event)
+        }
+
     }
 
     let items: Data
@@ -76,19 +86,25 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
     let itemContent: (Data.Element) -> Content
     let contextMenu: (Set<Data.Element.ID>) -> [MenuItem]
     let primaryAction: (Set<Data.Element.ID>) -> ()
+    let keyDown: (NSEvent) -> Bool
+    let keyUp: (NSEvent) -> Bool
 
     public init(_ items: Data,
                 selection: Binding<Set<Data.Element.ID>>,
                 layout: any Layoutable,
                 @ViewBuilder itemContent: @escaping (Data.Element) -> Content,
                 @MenuItemBuilder contextMenu: @escaping (Set<Data.Element.ID>) -> [MenuItem],
-                primaryAction: @escaping (Set<Data.Element.ID>) -> Void) {
+                primaryAction: @escaping (Set<Data.Element.ID>) -> Void,
+                keyDown: @escaping (NSEvent) -> Bool = { _ in return false },
+                keyUp: @escaping (NSEvent) -> Bool = { _ in return false }) {
         self.items = items
         self.selection = selection
         self.layout = layout
         self.itemContent = itemContent
         self.contextMenu = contextMenu
         self.primaryAction = primaryAction
+        self.keyDown = keyDown
+        self.keyUp = keyUp
     }
 
     public func makeCoordinator() -> Coordinator {

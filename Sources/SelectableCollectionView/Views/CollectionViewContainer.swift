@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import Carbon
 import SwiftUI
 
 #warning("TODO: Rename element to ID to avoid confusion?")
@@ -31,6 +32,31 @@ protocol CollectionViewContainerDelegate: NSObject {
                                                    didUpdateSelection selection: Set<Element>)
     func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
                                                    didDoubleClickSelection selection: Set<Element>)
+
+    func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
+                                                   keyDown event: NSEvent) -> Bool
+    func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
+                                                   keyUp event: NSEvent) -> Bool
+}
+
+class CustomScrollView: NSScrollView {
+
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == kVK_Space {
+            nextResponder?.keyDown(with: event)
+            return
+        }
+        super.keyDown(with: event)
+    }
+
+    override func keyUp(with event: NSEvent) {
+        if event.keyCode == kVK_Space {
+            nextResponder?.keyUp(with: event)
+            return
+        }
+        super.keyUp(with: event)
+    }
+    
 }
 
 public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, NSCollectionViewDelegate, CustomCollectionViewMenuDelegate {
@@ -45,7 +71,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
     typealias DataSource = NSCollectionViewDiffableDataSource<Section, Element>
     typealias Cell = ShortcutItemView
 
-    private let scrollView: NSScrollView
+    private let scrollView: CustomScrollView
     private let collectionView: CustomCollectionView
     private var dataSource: DataSource? = nil
 
@@ -53,7 +79,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
 
     init(layout: NSCollectionViewLayout) {
 
-        scrollView = NSScrollView()
+        scrollView = CustomScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = true
@@ -187,6 +213,20 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
 
     var collectionViewLayout: NSCollectionViewLayout? {
         return collectionView.collectionViewLayout
+    }
+
+    public override func keyDown(with event: NSEvent) {
+        if delegate?.collectionViewContainer(self, keyDown: event) ?? false {
+            return
+        }
+        super.keyDown(with: event)
+    }
+
+    public override func keyUp(with event: NSEvent) {
+        if delegate?.collectionViewContainer(self, keyUp: event) ?? false {
+            return
+        }
+        super.keyUp(with: event)
     }
 
 }
