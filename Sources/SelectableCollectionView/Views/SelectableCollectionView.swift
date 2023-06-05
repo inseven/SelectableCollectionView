@@ -20,6 +20,8 @@
 
 import SwiftUI
 
+import Interact
+
 public struct SelectableCollectionView<Data: RandomAccessCollection, Content: View>: NSViewRepresentable where Data.Element: Identifiable, Data.Element: Hashable, Data.Element.ID: Hashable {
 
     public typealias ID = Data.Element.ID
