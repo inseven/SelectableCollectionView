@@ -13,11 +13,15 @@ let package = Package(
             name: "SelectableCollectionView",
             targets: ["SelectableCollectionView"]),
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/inseven/interact.git",  .upToNextMajor(from: "2.13.0"))
+    ],
     targets: [
         .target(
             name: "SelectableCollectionView",
-            dependencies: [],
+            dependencies: [
+                .product(name: "Interact", package: "Interact"),
+            ],
             resources: [.process("Resources")]),
         .testTarget(
             name: "SelectableCollectionViewTests",

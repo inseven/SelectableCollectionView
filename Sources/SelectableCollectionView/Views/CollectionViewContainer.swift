@@ -21,6 +21,8 @@
 import Carbon
 import SwiftUI
 
+import Interact
+
 #warning("TODO: Rename element to ID to avoid confusion?")
 
 protocol CollectionViewContainerDelegate: NSObject {
@@ -174,7 +176,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
         let menu = NSMenu()
         menu.items = menuItems.map { menuItem in
             switch menuItem.itemType {
-            case .item(let title, let action):
+            case .item(let title, _, _, let action):
                 let menuItem = NSMenuItem(title: title,
                                           action: menuItem.isDisabled ? nil : #selector(menuItem(sender:)),
                                           keyEquivalent: "")
