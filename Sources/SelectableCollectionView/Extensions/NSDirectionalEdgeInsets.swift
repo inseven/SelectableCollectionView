@@ -24,6 +24,13 @@ import AppKit
 
 extension NSDirectionalEdgeInsets: Equatable {
 
+    init(_ size: CGFloat) {
+        self.init(top: size,
+                  leading: size,
+                  bottom: size,
+                  trailing: size)
+    }
+
 #warning("TODO: Floating-point comparison")
     public static func == (lhs: NSDirectionalEdgeInsets, rhs: NSDirectionalEdgeInsets) -> Bool {
         return (lhs.top == rhs.top &&

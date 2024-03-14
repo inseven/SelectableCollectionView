@@ -27,7 +27,7 @@ import Cassowary
 
 class GridItemCollectionViewLayout: NSCollectionViewCompositionalLayout {
 
-    init(columns: [GridItem]) {
+    init(columns: [GridItem], spacing: CGFloat?) {
         super.init(sectionProvider: { (sectionIndex: Int,
                                        layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
 
@@ -60,19 +60,17 @@ class GridItemCollectionViewLayout: NSCollectionViewCompositionalLayout {
                 let width: Variable
                 let definition: GridItem.Size
 
-                var layoutItmes: [NSCollectionLayoutItem] {
+                func layoutItmes(spacing: CGFloat) -> [NSCollectionLayoutItem] {
                     switch definition {
                     case .fixed, .flexible:
                         let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(width.value),
                                                               heightDimension: .estimated(10))
                         return [NSCollectionLayoutItem(layoutSize: itemSize)]
                     case .adaptive(let minimum, let maximum):
-                        // TODO: What happens if it's not a perfect fit?
-                        print(width.value)
-                        let width = width.value
-                        let columns = max(1.0, floor(width / minimum))
+                        let width = width.value + spacing
+                        let columns = max(1.0, floor(width / (minimum + spacing)))
                         let itemWidth = width / columns
-                        let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(itemWidth),
+                        let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(itemWidth - spacing),
                                                               heightDimension: .estimated(10))
                         var items: [NSCollectionLayoutItem] = []
                         for i in 0..<Int(columns) {
@@ -82,8 +80,11 @@ class GridItemCollectionViewLayout: NSCollectionViewCompositionalLayout {
                     }
                 }
             }
+            let edgeInsets = NSDirectionalEdgeInsets(16.0)
+            let interItemSpacing = spacing ?? 8.0
 
             let contentSize = layoutEnvironment.container.effectiveContentSize
+                .inset(by: edgeInsets)
             var remainingWidth = Expression(constant: contentSize.width)
 
             let solver = Solver()
@@ -94,7 +95,7 @@ class GridItemCollectionViewLayout: NSCollectionViewCompositionalLayout {
                 let details = ColumnDetails(width: dimension, definition: column.size)
                 dimensions.append(details)
 
-                remainingWidth = remainingWidth - dimension
+                remainingWidth = remainingWidth - interItemSpacing - dimension
 
                 switch column.size {
                 case .fixed(let width):
@@ -110,24 +111,23 @@ class GridItemCollectionViewLayout: NSCollectionViewCompositionalLayout {
                 }
             }
 
-            // TODO: Spacing.
-
             try? solver.addConstraint(remainingWidth == 0)
             solver.updateVariables()
 
-            // TODO: Double check to see what .fixed(10) does on iOS??
             let items = dimensions
                 .map { dimension in
-                    return dimension.layoutItmes  // TODO: Make layout items?
+                    return dimension.layoutItmes(spacing: interItemSpacing)
                 }
                 .reduce([], +)
 
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(10))
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                   heightDimension: .estimated(10))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: items)
-            group.interItemSpacing = .fixed(0.0)
+            group.interItemSpacing = .fixed(interItemSpacing)
 
             let section = NSCollectionLayoutSection(group: group)
-            section.interGroupSpacing = 0.0
+            section.interGroupSpacing = interItemSpacing
+            section.contentInsets = edgeInsets
 
             return section
         })

@@ -18,35 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
-
-extension GridItem: Equatable, Hashable {
-
-    // TODO: THIS IS A HACK
-    public static func == (lhs: GridItem, rhs: GridItem) -> Bool {
-        return true
-    }
-
-    public func hash(into hasher: inout Hasher) {
-
-    }
-
-}
-
-public struct GridItemLayout: Layoutable, Hashable {
-
-    let columns: [GridItem]
-    let spacing: CGFloat?
-
-    public init(columns: [GridItem], spacing: CGFloat?) {
-        self.columns = columns
-        self.spacing = spacing
-    }
-
 #if os(macOS)
-    public func makeLayout() -> NSCollectionViewLayout {
-        return GridItemCollectionViewLayout(columns: columns, spacing: spacing)
+
+import AppKit
+
+extension NSSize {
+
+    func inset(by edgeInsets: NSDirectionalEdgeInsets) -> NSSize {
+        return NSSize(width: width - (edgeInsets.leading + edgeInsets.trailing),
+                      height: height - (edgeInsets.top + edgeInsets.bottom))
     }
-#endif
 
 }
+
+#endif

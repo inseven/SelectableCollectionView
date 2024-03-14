@@ -102,6 +102,7 @@ public struct SelectableCollectionView<Data: RandomAccessCollection,
     public init(_ items: Data,
                 selection: Binding<Set<Data.Element.ID>>,
                 columns: [GridItem],
+                spacing: CGFloat? = nil,
                 @ViewBuilder itemContent: @escaping (Data.Element) -> Content,
                 @MenuItemBuilder contextMenu: @escaping (Set<Data.Element.ID>) -> [MenuItem],
                 primaryAction: @escaping (Set<Data.Element.ID>) -> Void,
@@ -109,7 +110,7 @@ public struct SelectableCollectionView<Data: RandomAccessCollection,
                 keyUp: @escaping (NSEvent) -> Bool = { _ in return false }) {
         self.init(items,
                   selection: selection,
-                  layout: GridItemLayout(columns: columns),
+                  layout: GridItemLayout(columns: columns, spacing: spacing),
                   itemContent: itemContent,
                   contextMenu: contextMenu,
                   primaryAction: primaryAction)
@@ -172,6 +173,7 @@ public struct SelectableCollectionView<Data: RandomAccessCollection,
     let items: Data
     let selection: Binding<Set<Data.Element.ID>>
     let columns: [GridItem]
+    let spacing: CGFloat?
     let itemContent: (Data.Element) -> Content
     let contextMenu: (Set<Data.Element.ID>) -> [MenuItem]
     let primaryAction: (Set<Data.Element.ID>) -> ()
@@ -181,6 +183,7 @@ public struct SelectableCollectionView<Data: RandomAccessCollection,
     public init(_ items: Data,
                 selection: Binding<Set<Data.Element.ID>>,
                 columns: [GridItem],
+                spacing: CGFloat? = nil,
                 @ViewBuilder itemContent: @escaping (Data.Element) -> Content,
                 @MenuItemBuilder contextMenu: @escaping (Set<Data.Element.ID>) -> [MenuItem],
                 primaryAction: @escaping (Set<Data.Element.ID>) -> Void/*,
@@ -189,6 +192,7 @@ public struct SelectableCollectionView<Data: RandomAccessCollection,
         self.items = items
         self.selection = selection
         self.columns = columns
+        self.spacing = spacing
         self.itemContent = itemContent
         self.contextMenu = contextMenu
         self.primaryAction = primaryAction
@@ -198,7 +202,7 @@ public struct SelectableCollectionView<Data: RandomAccessCollection,
 
     public var body: some View {
         ScrollView {
-            LazyVGrid(columns: columns) {
+            LazyVGrid(columns: columns, spacing: spacing) {
                 ForEach(items) { item in
                     itemContent(item)
                         .contextMenu {
