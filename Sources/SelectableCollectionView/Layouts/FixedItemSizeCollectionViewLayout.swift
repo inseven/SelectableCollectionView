@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if os(macOS)
+
 import AppKit
 
 class FixedItemSizeCollectionViewLayout: NSCollectionViewCompositionalLayout {
@@ -43,3 +45,5 @@ class FixedItemSizeCollectionViewLayout: NSCollectionViewCompositionalLayout {
     }
 
 }
+
+#endif

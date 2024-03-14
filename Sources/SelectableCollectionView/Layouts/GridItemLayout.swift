@@ -18,31 +18,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if os(macOS)
-
 import SwiftUI
 
-public struct ColumnLayout: Layoutable {
+extension GridItem: Equatable, Hashable {
 
-    let spacing: CGFloat
-    let columns: Int
-    let edgeInsets: NSEdgeInsets
-
-    public init(spacing: CGFloat, columns: Int, edgeInsets: NSEdgeInsets) {
-        self.spacing = spacing
-        self.columns = columns
-        self.edgeInsets = edgeInsets
+    // TODO: THIS IS A HACK
+    public static func == (lhs: GridItem, rhs: GridItem) -> Bool {
+        return true
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(spacing)
-        hasher.combine(columns)
-    }
 
-    public func makeLayout() -> NSCollectionViewLayout {
-        return ColumnCollectionViewLayout(spacing: spacing, columns: columns, edgeInsets: edgeInsets)
     }
 
 }
 
+public struct GridItemLayout: Layoutable, Hashable {
+
+    let columns: [GridItem]
+    let spacing: CGFloat?
+
+    public init(columns: [GridItem], spacing: CGFloat?) {
+        self.columns = columns
+        self.spacing = spacing
+    }
+
+#if os(macOS)
+    public func makeLayout() -> NSCollectionViewLayout {
+        return GridItemCollectionViewLayout(columns: columns, spacing: spacing)
+    }
 #endif
+
+}

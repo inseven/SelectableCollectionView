@@ -18,9 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if os(macOS)
+
 import AppKit
 
 extension NSDirectionalEdgeInsets: Equatable {
+
+    init(_ size: CGFloat) {
+        self.init(top: size,
+                  leading: size,
+                  bottom: size,
+                  trailing: size)
+    }
 
 #warning("TODO: Floating-point comparison")
     public static func == (lhs: NSDirectionalEdgeInsets, rhs: NSDirectionalEdgeInsets) -> Bool {
@@ -31,3 +40,5 @@ extension NSDirectionalEdgeInsets: Equatable {
     }
 
 }
+
+#endif

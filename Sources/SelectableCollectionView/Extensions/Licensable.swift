@@ -18,16 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if os(macOS)
-
 import Foundation
 
-extension NSEdgeInsets: Equatable {
+import Licensable
 
-    public static func == (lhs: NSEdgeInsets, rhs: NSEdgeInsets) -> Bool {
-        return NSEdgeInsetsEqual(lhs, rhs)
+extension Licensable where Self == License {
+
+    public static var cassowarySwift: License {
+
+        let licenseURL = Bundle.module.url(forResource: "cassowaryswift-license", withExtension: nil)!
+
+        return License(name: "CassowarySwift",
+                       author: "Tribal Worldwide London, Alex Birkett",
+                       text: try! String(contentsOf: licenseURL))
+    }
+
+    public static var selectableCollectionView: License {
+
+        let licenseURL = Bundle.module.url(forResource: "LICENSE", withExtension: nil)!
+
+        return License(id: "https://github.com/jbmorley/selectablecollectionview",
+                       name: "SelectableCollectionView",
+                       author: "Jason Morley",
+                       text: try! String(contentsOf: licenseURL),
+                       attributes: [
+                           .url(URL(string: "https://github.com/jbmorley/selectablecollectionview")!, title: "GitHub"),
+                       ],
+                       licenses: [
+                           .licensable,
+                           .cassowarySwift,
+                       ])
     }
 
 }
 
-#endif

@@ -1,0 +1,32 @@
+{
+  "pins" : [
+    {
+      "identity" : "cassowaryswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tribalworldwidelondon/CassowarySwift.git",
+      "state" : {
+        "revision" : "7de8fee8331ad13eabb8de639fab0fde7a8f0d77",
+        "version" : "2.0.1"
+      }
+    },
+    {
+      "identity" : "interact",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/inseven/interact.git",
+      "state" : {
+        "revision" : "984649de2d454c95ebb9a65e5109e4de1afe00ba",
+        "version" : "2.19.11"
+      }
+    },
+    {
+      "identity" : "licensable",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/inseven/licensable",
+      "state" : {
+        "revision" : "a8ad62c6fde5aca29a47459b0687e580eee203dd",
+        "version" : "0.0.13"
+      }
+    }
+  ],
+  "version" : 2
+}

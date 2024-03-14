@@ -20,27 +20,13 @@
 
 #if os(macOS)
 
-import SwiftUI
+import AppKit
 
-public struct ColumnLayout: Layoutable {
+extension NSSize {
 
-    let spacing: CGFloat
-    let columns: Int
-    let edgeInsets: NSEdgeInsets
-
-    public init(spacing: CGFloat, columns: Int, edgeInsets: NSEdgeInsets) {
-        self.spacing = spacing
-        self.columns = columns
-        self.edgeInsets = edgeInsets
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(spacing)
-        hasher.combine(columns)
-    }
-
-    public func makeLayout() -> NSCollectionViewLayout {
-        return ColumnCollectionViewLayout(spacing: spacing, columns: columns, edgeInsets: edgeInsets)
+    func inset(by edgeInsets: NSDirectionalEdgeInsets) -> NSSize {
+        return NSSize(width: width - (edgeInsets.leading + edgeInsets.trailing),
+                      height: height - (edgeInsets.top + edgeInsets.bottom))
     }
 
 }

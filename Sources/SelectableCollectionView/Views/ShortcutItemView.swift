@@ -18,7 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if os(macOS)
+
 import SwiftUI
+
+import SelectableCollectionViewMacResources
 
 #warning("TODO: Can we type this internally?")
 class ShortcutItemView: NSCollectionViewItem {
@@ -49,7 +53,7 @@ class ShortcutItemView: NSCollectionViewItem {
     }
 
     override init(nibName nibNameOrNil: NSNib.Name?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nil, bundle: .module)
+        super.init(nibName: nil, bundle: Resources.bundle)
     }
 
     required init?(coder: NSCoder) {
@@ -59,7 +63,7 @@ class ShortcutItemView: NSCollectionViewItem {
     private func host(_ content: AnyView) {
         let modifiedContent = AnyView(content
             .environment(\.isSelected, isSelected)
-            .environment(\.highlightState, highlightState))
+            .environment(\.highlightState, .init(highlightState)))
         if let hostingView = hostingView {
             hostingView.rootView = modifiedContent
         } else {
@@ -95,3 +99,4 @@ class ShortcutItemView: NSCollectionViewItem {
 
 }
 
+#endif
