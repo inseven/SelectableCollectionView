@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if os(macOS)
+
 import AppKit
 
 public struct FixedItemSizeLayout: Layoutable {
@@ -43,3 +45,5 @@ public struct FixedItemSizeLayout: Layoutable {
     }
 
 }
+
+#endif

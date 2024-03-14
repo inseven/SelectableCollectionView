@@ -18,8 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if os(macOS)
+
 import Carbon
 import SwiftUI
+
+import SelectableCollectionViewMacResources
 
 import Interact
 
@@ -58,10 +62,10 @@ class CustomScrollView: NSScrollView {
         }
         super.keyUp(with: event)
     }
-    
+
 }
 
-public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, NSCollectionViewDelegate, CustomCollectionViewMenuDelegate {
+public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, NSCollectionViewDelegate, CustomCollectionViewMenuDelegate, NSCollectionViewDelegateFlowLayout {
 
     weak var delegate: CollectionViewContainerDelegate?
 
@@ -116,7 +120,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
         collectionView.delegate = self
         collectionView.menuDelegate = self
 
-        let itemNib = NSNib(nibNamed: "ShortcutItemView", bundle: .module)
+        let itemNib = NSNib(nibNamed: "ShortcutItemView", bundle: Resources.bundle)
         collectionView.register(itemNib, forItemWithIdentifier: ShortcutItemView.identifier)
         collectionView.register(ShortcutItemView.self, forItemWithIdentifier: ShortcutItemView.identifier)
 
@@ -232,3 +236,5 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
     }
 
 }
+
+#endif

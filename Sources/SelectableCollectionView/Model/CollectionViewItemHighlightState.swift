@@ -18,31 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if os(macOS)
-
 import SwiftUI
 
-public struct ColumnLayout: Layoutable {
-
-    let spacing: CGFloat
-    let columns: Int
-    let edgeInsets: NSEdgeInsets
-
-    public init(spacing: CGFloat, columns: Int, edgeInsets: NSEdgeInsets) {
-        self.spacing = spacing
-        self.columns = columns
-        self.edgeInsets = edgeInsets
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(spacing)
-        hasher.combine(columns)
-    }
-
-    public func makeLayout() -> NSCollectionViewLayout {
-        return ColumnCollectionViewLayout(spacing: spacing, columns: columns, edgeInsets: edgeInsets)
-    }
-
+public enum CollectionViewItemHighlightState {
+    case none
+    case forSelection
+    case forDeselection
+    case asDropTarget
 }
 
+extension CollectionViewItemHighlightState {
+
+#if os(macOS)
+    init(_ highlightState: NSCollectionViewItem.HighlightState) {
+        switch highlightState {
+        case .none:
+            self = .none
+        case .forSelection:
+            self = .forSelection
+        case .forDeselection:
+            self = .forDeselection
+        case .asDropTarget:
+            self = .asDropTarget
+        @unknown default:
+            print("Unknown highlight state \(highlightState)")
+            self = .none
+        }
+    }
 #endif
+
+}

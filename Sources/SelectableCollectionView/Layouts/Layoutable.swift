@@ -18,11 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if os(macOS)
 import AppKit
+#endif
 
 #warning("TODO: This needs to be equatable")
 public protocol Layoutable: Hashable {
 
+#if os(macOS)
     func makeLayout() -> NSCollectionViewLayout
+#endif
 
 }

@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if os(macOS)
+
 import AppKit
 
 extension NSDirectionalEdgeInsets: Equatable {
@@ -31,3 +33,5 @@ extension NSDirectionalEdgeInsets: Equatable {
     }
 
 }
+
+#endif

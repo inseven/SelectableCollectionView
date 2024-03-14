@@ -18,11 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if os(macOS)
+
 import SwiftUI
 
 import Interact
 
-public struct SelectableCollectionView<Data: RandomAccessCollection, Content: View>: NSViewRepresentable where Data.Element: Identifiable, Data.Element: Hashable, Data.Element.ID: Hashable {
+public struct SelectableCollectionView<Data: RandomAccessCollection,
+                                       Content: View>: NSViewRepresentable where Data.Element: Identifiable,
+                                                                                 Data.Element: Hashable,
+                                                                                 Data.Element.ID: Hashable {
 
     public typealias ID = Data.Element.ID
     public typealias Element = Data.Element
@@ -45,7 +50,8 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
             return parent.contextMenu(ids)
         }
 
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>, contentForElement element: Element) -> Content? where Element : Hashable, Content : View {
+        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
+                                                       contentForElement element: Element) -> Content? where Element : Hashable, Content : View {
 #warning("TODO: These guards shouldn't be necessary?")
             guard let element = element as? Data.Element,
                   let content = parent.itemContent(element) as? Content else {
@@ -54,7 +60,8 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
             return content
         }
 
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>, didUpdateSelection selection: Set<Element>) where Element : Hashable, Content : View {
+        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
+                                                       didUpdateSelection selection: Set<Element>) where Element : Hashable, Content : View {
             guard let selection = selection as? Set<Data.Element> else {
                 return
             }
@@ -62,7 +69,8 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
             parent.selection.wrappedValue = ids
         }
 
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>, didDoubleClickSelection selection: Set<Element>) where Element : Hashable, Content : View {
+        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>, 
+                                                       didDoubleClickSelection selection: Set<Element>) where Element : Hashable, Content : View {
             guard let selection = selection as? Set<Data.Element> else {
                 return
             }
@@ -90,6 +98,22 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
     let primaryAction: (Set<Data.Element.ID>) -> ()
     let keyDown: (NSEvent) -> Bool
     let keyUp: (NSEvent) -> Bool
+
+    public init(_ items: Data,
+                selection: Binding<Set<Data.Element.ID>>,
+                columns: [GridItem],
+                @ViewBuilder itemContent: @escaping (Data.Element) -> Content,
+                @MenuItemBuilder contextMenu: @escaping (Set<Data.Element.ID>) -> [MenuItem],
+                primaryAction: @escaping (Set<Data.Element.ID>) -> Void,
+                keyDown: @escaping (NSEvent) -> Bool = { _ in return false },
+                keyUp: @escaping (NSEvent) -> Bool = { _ in return false }) {
+        self.init(items,
+                  selection: selection,
+                  layout: GridItemLayout(columns: columns),
+                  itemContent: itemContent,
+                  contextMenu: contextMenu,
+                  primaryAction: primaryAction)
+    }
 
     public init(_ items: Data,
                 selection: Binding<Set<Data.Element.ID>>,
@@ -133,3 +157,62 @@ public struct SelectableCollectionView<Data: RandomAccessCollection, Content: Vi
     }
 
 }
+
+#else
+
+import SwiftUI
+
+import Interact
+
+public struct SelectableCollectionView<Data: RandomAccessCollection,
+                                       Content: View>: View where Data.Element: Identifiable,
+                                                                  Data.Element: Hashable,
+                                                                  Data.Element.ID: Hashable {
+
+    let items: Data
+    let selection: Binding<Set<Data.Element.ID>>
+    let columns: [GridItem]
+    let itemContent: (Data.Element) -> Content
+    let contextMenu: (Set<Data.Element.ID>) -> [MenuItem]
+    let primaryAction: (Set<Data.Element.ID>) -> ()
+//    let keyDown: (UIEvent) -> Bool
+//    let keyUp: (UIEvent) -> Bool
+
+    public init(_ items: Data,
+                selection: Binding<Set<Data.Element.ID>>,
+                columns: [GridItem],
+                @ViewBuilder itemContent: @escaping (Data.Element) -> Content,
+                @MenuItemBuilder contextMenu: @escaping (Set<Data.Element.ID>) -> [MenuItem],
+                primaryAction: @escaping (Set<Data.Element.ID>) -> Void/*,
+                keyDown: @escaping (NSEvent) -> Bool = { _ in return false },
+                keyUp: @escaping (NSEvent) -> Bool = { _ in return false } */) {
+        self.items = items
+        self.selection = selection
+        self.columns = columns
+        self.itemContent = itemContent
+        self.contextMenu = contextMenu
+        self.primaryAction = primaryAction
+//        self.keyDown = keyDown
+//        self.keyUp = keyUp
+    }
+
+    public var body: some View {
+        ScrollView {
+            LazyVGrid(columns: columns) {
+                ForEach(items) { item in
+                    itemContent(item)
+                        .contextMenu {
+                            contextMenu([item.id])
+                        }
+                        .onTapGesture {
+                            primaryAction([item.id])
+                        }
+                }
+            }
+            .padding()
+        }
+    }
+
+}
+
+#endif
