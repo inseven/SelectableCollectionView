@@ -21,6 +21,7 @@
 import Combine
 import SwiftUI
 
+import Interact
 import SelectableCollectionView
 
 struct ContentView: View {

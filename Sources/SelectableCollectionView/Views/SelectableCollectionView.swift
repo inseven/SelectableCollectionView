@@ -18,77 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if os(macOS)
-
 import SwiftUI
 
 import Interact
 
+#if os(macOS)
+
 public struct SelectableCollectionView<Data: RandomAccessCollection,
-                                       Content: View>: NSViewRepresentable where Data.Element: Identifiable,
-                                                                                 Data.Element: Hashable,
-                                                                                 Data.Element.ID: Hashable {
-
-    public typealias ID = Data.Element.ID
-    public typealias Element = Data.Element
-
-    public class Coordinator: NSObject, CollectionViewContainerDelegate {
-
-        var parent: SelectableCollectionView<Data, Content>
-        var collectionViewLayoutHash: Int = 0
-
-        init(_ parent: SelectableCollectionView<Data, Content>) {
-            self.parent = parent
-        }
-
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                       menuItemsForElements elements: Set<Element>) -> [MenuItem] where Element : Hashable, Content : View {
-            guard let elements = elements as? Set<Data.Element> else {
-                return []
-            }
-            let ids = Set(elements.map { $0.id })
-            return parent.contextMenu(ids)
-        }
-
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                       contentForElement element: Element) -> Content? where Element : Hashable, Content : View {
-#warning("TODO: These guards shouldn't be necessary?")
-            guard let element = element as? Data.Element,
-                  let content = parent.itemContent(element) as? Content else {
-                return nil
-            }
-            return content
-        }
-
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                       didUpdateSelection selection: Set<Element>) where Element : Hashable, Content : View {
-            guard let selection = selection as? Set<Data.Element> else {
-                return
-            }
-            let ids = Set(selection.map { $0.id })
-            parent.selection.wrappedValue = ids
-        }
-
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>, 
-                                                       didDoubleClickSelection selection: Set<Element>) where Element : Hashable, Content : View {
-            guard let selection = selection as? Set<Data.Element> else {
-                return
-            }
-            let ids = Set(selection.map { $0.id })
-            parent.primaryAction(ids)
-        }
-
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                       keyDown event: NSEvent) -> Bool where Element : Hashable, Content : View {
-            return parent.keyDown(event)
-        }
-
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                       keyUp event: NSEvent) -> Bool where Element : Hashable, Content : View {
-            return parent.keyUp(event)
-        }
-
-    }
+                                       Content: View>: View where Data.Element: Identifiable,
+                                                                  Data.Element: Hashable,
+                                                                  Data.Element.ID: Hashable {
 
     let items: Data
     let selection: Binding<Set<Data.Element.ID>>
@@ -108,12 +47,14 @@ public struct SelectableCollectionView<Data: RandomAccessCollection,
                 primaryAction: @escaping (Set<Data.Element.ID>) -> Void,
                 keyDown: @escaping (NSEvent) -> Bool = { _ in return false },
                 keyUp: @escaping (NSEvent) -> Bool = { _ in return false }) {
-        self.init(items,
-                  selection: selection,
-                  layout: GridItemLayout(columns: columns, spacing: spacing),
-                  itemContent: itemContent,
-                  contextMenu: contextMenu,
-                  primaryAction: primaryAction)
+        self.items = items
+        self.selection = selection
+        self.layout = GridItemLayout(columns: columns, spacing: spacing)
+        self.itemContent = itemContent
+        self.contextMenu = contextMenu
+        self.primaryAction = primaryAction
+        self.keyDown = keyDown
+        self.keyUp = keyUp
     }
 
     public init(_ items: Data,
@@ -134,36 +75,21 @@ public struct SelectableCollectionView<Data: RandomAccessCollection,
         self.keyUp = keyUp
     }
 
-    public func makeCoordinator() -> Coordinator {
-        return Coordinator(self)
-    }
-
-    public func makeNSView(context: Context) -> CollectionViewContainer<Element, Content> {
-        let collectionView = CollectionViewContainer<Element, Content>(layout: layout.makeLayout())
-        collectionView.delegate = context.coordinator
-        return collectionView
-    }
-
-    public func updateNSView(_ collectionView: CollectionViewContainer<Element, Content>, context: Context) {
-        context.coordinator.parent = self
-#warning("TODO: We shouldn't need to copy this into an array?")
-        let selectedElements = items.filter { selection.wrappedValue.contains($0.id) }
-        collectionView.update(Array(items), selection: Set(selectedElements))
-
-        if context.coordinator.collectionViewLayoutHash != layout.hashValue {
-            let collectionViewLayout = layout.makeLayout()
-            collectionView.updateLayout(collectionViewLayout)
-            context.coordinator.collectionViewLayoutHash = layout.hashValue
-        }
+    public var body: some View {
+        CollectionViewContainerHost(items,
+                                    selection: selection,
+                                    layout: layout,
+                                    itemContent: itemContent,
+                                    contextMenu: contextMenu,
+                                    primaryAction: primaryAction,
+                                    keyDown: keyDown,
+                                    keyUp: keyUp)
+        .ignoresSafeArea()
     }
 
 }
 
 #else
-
-import SwiftUI
-
-import Interact
 
 public struct SelectableCollectionView<Data: RandomAccessCollection,
                                        Content: View>: View where Data.Element: Identifiable,
