@@ -12,4 +12,4 @@ swift package \
     --output-path _site \
     --disable-indexing \
     --transform-for-static-hosting \
-    --hosting-base-path 'interact'
+    --hosting-base-path 'SelectableCollectionView'
