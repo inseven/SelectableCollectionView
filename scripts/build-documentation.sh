@@ -6,10 +6,10 @@ ROOT_DIRECTORY="${SCRIPT_DIRECTORY}/.."
 cd "$ROOT_DIRECTORY"
 
 swift package \
-    --allow-writing-to-directory ./docs \
+    --allow-writing-to-directory _site \
     generate-documentation \
     --target Interact \
-    --output-path ./docs \
+    --output-path _site \
     --disable-indexing \
     --transform-for-static-hosting \
     --hosting-base-path 'interact'
