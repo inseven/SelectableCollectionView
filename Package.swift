@@ -16,7 +16,8 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "MacResources"),
-        .package(url: "https://github.com/inseven/interact.git",  .upToNextMajor(from: "2.13.0")),
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
+        .package(url: "https://github.com/inseven/interact.git",  .upToNextMajor(from: "2.19.14")),
         .package(url: "https://github.com/inseven/licensable.git", .upToNextMajor(from: "0.0.1")),
         .package(url: "https://github.com/tribalworldwidelondon/CassowarySwift.git", from: "2.0.0"),
     ],
