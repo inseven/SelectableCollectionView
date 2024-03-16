@@ -1,0 +1,59 @@
+name: build
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  schedule:
+    - cron:  '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  test:
+
+    name: build
+    runs-on: inseven-macos-14
+
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Install dependencies
+      run: scripts/install-dependencies.sh
+
+    - name: Build
+      run: exec ./scripts/build.sh
+
+    - name: Release
+      if: github.ref == 'refs/heads/main'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: scripts/release.sh
+
+  documentation-build:
+    runs-on: inseven-macos-14
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Build documentation
+      run: |
+        scripts/build-documentation.sh
+
+    - name: Publish documentation
+      if: github.ref == 'refs/heads/main'
+      uses: stefanzweifel/git-auto-commit-action@v5
+      id: auto-commit
+      with:
+        branch: documentation
+        create_branch: true
+        push_options: --force
+        commit_message: "docs: Update documentation"
