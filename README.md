@@ -1,5 +1,7 @@
 # SelectableCollectionView
 
+[![build](https://github.com/inseven/SelectableCollectionView/actions/workflows/build.yaml/badge.svg)](https://github.com/inseven/SelectableCollectionView/actions/workflows/build.yaml)
+
 Grid view for SwiftUI with support for multiple selection on macOS modeled after `LazyVGrid` and `List`.
 
 ## Documentation
