@@ -10,12 +10,12 @@ https://inseven.github.io/SelectableCollectionView/documentation/selectablecolle
 
 ```swift
 struct ContentView: View {
-  
-    @State private var items = [/* ... */]
-  
-  	private var columns = [GridItem(.adaptive(minimum: 300))]
 
-		/* ... */
+    @State private var items = [/* ... */]
+
+    private var columns = [GridItem(.adaptive(minimum: 300))]
+
+    /* ... */
 
     var body: some View {
         HStack {
