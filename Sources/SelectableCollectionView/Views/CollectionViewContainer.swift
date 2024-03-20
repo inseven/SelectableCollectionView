@@ -65,7 +65,10 @@ class CustomScrollView: NSScrollView {
 
 }
 
-public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, NSCollectionViewDelegate, CustomCollectionViewMenuDelegate, NSCollectionViewDelegateFlowLayout {
+public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
+                                                                        NSCollectionViewDelegate,
+                                                                        CustomCollectionViewMenuDelegate,
+                                                                        NSCollectionViewDelegateFlowLayout {
 
     weak var delegate: CollectionViewContainerDelegate?
 
@@ -102,7 +105,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
             else {
                 return ShortcutItemView()
             }
-            view.configure(AnyView(content))
+            view.configure(AnyView(content), parentHasFocus: collectionView.isFirstResponder)
             view.element = item
             return view
         }
@@ -147,7 +150,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
                 continue
             }
             let content = self.delegate?.collectionViewContainer(self, contentForElement: element)
-            item.configure(AnyView(content))
+            item.configure(AnyView(content), parentHasFocus: collectionView.isFirstResponder)
         }
 
         // Update the selection
@@ -207,6 +210,10 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView, 
 
     func customCollectionView(_ customCollectionView: CustomCollectionView, didDoubleClickSelection selection: Set<IndexPath>) {
         delegate?.collectionViewContainer(self, didDoubleClickSelection: selectedElements)
+    }
+
+    func customCollectionView(_ customCollectionView: CustomCollectionView, didUpdateFocus isFirstResponder: Bool) {
+        updateSelection()
     }
 
     public func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {

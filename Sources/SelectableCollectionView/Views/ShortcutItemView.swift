@@ -39,6 +39,12 @@ class ShortcutItemView: NSCollectionViewItem {
         }
     }
 
+    override var highlightState: NSCollectionViewItem.HighlightState {
+        didSet {
+            updateState()
+        }
+    }
+
     func updateState() {
         guard let content = content else {
             return
@@ -46,11 +52,7 @@ class ShortcutItemView: NSCollectionViewItem {
         host(content)
     }
 
-    override var highlightState: NSCollectionViewItem.HighlightState {
-        didSet {
-            updateState()
-        }
-    }
+    private var parentHasFocus: Bool = false
 
     override init(nibName nibNameOrNil: NSNib.Name?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nil, bundle: Resources.bundle)
@@ -63,7 +65,8 @@ class ShortcutItemView: NSCollectionViewItem {
     private func host(_ content: AnyView) {
         let modifiedContent = AnyView(content
             .environment(\.isSelected, isSelected)
-            .environment(\.highlightState, .init(highlightState)))
+            .environment(\.highlightState, .init(highlightState))
+            .environment(\.selectionColor, parentHasFocus ? Color(nsColor: .selectedContentBackgroundColor) : Color(nsColor: .unemphasizedSelectedContentBackgroundColor)))
         if let hostingView = hostingView {
             hostingView.rootView = modifiedContent
         } else {
@@ -78,13 +81,14 @@ class ShortcutItemView: NSCollectionViewItem {
 #warning("TODO: Not sure if this is necessary")
     override func prepareForReuse() {
         super.prepareForReuse()
-        configure(AnyView(EmptyView()))
+        configure(AnyView(EmptyView()), parentHasFocus: false)
     }
 
 #warning("TODO: Called by the data source")
 #warning("TODO: This should take an item")
-    func configure(_ content: AnyView) {
+    func configure(_ content: AnyView, parentHasFocus: Bool) {
         self.content = content
+        self.parentHasFocus = parentHasFocus
         host(content)
     }
 
