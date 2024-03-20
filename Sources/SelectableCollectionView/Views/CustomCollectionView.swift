@@ -28,6 +28,7 @@ protocol CustomCollectionViewMenuDelegate: NSObject {
     func customCollectionView(_ customCollectionView: CustomCollectionView, contextMenuForSelection selection: IndexSet) -> NSMenu?
     func customCollectionView(_ customCollectionView: CustomCollectionView, didUpdateSelection selection: Set<IndexPath>)
     func customCollectionView(_ customCollectionView: CustomCollectionView, didDoubleClickSelection selection: Set<IndexPath>)
+    func customCollectionView(_ customCollectionView: CustomCollectionView, didUpdateFocus isFirstResponder: Bool)
 
 }
 
@@ -65,6 +66,16 @@ class CustomCollectionView: NSCollectionView {
            !selectionIndexPaths.isEmpty {
             menuDelegate?.customCollectionView(self, didDoubleClickSelection: selectionIndexPaths)
         }
+    }
+
+    override func becomeFirstResponder() -> Bool {
+        menuDelegate?.customCollectionView(self, didUpdateFocus: true)
+        return super.becomeFirstResponder()
+    }
+
+    override func resignFirstResponder() -> Bool {
+        menuDelegate?.customCollectionView(self, didUpdateFocus: false)
+        return super.resignFirstResponder()
     }
 
     override func keyDown(with event: NSEvent) {
