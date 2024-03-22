@@ -36,12 +36,13 @@ struct Cell: View {
 
     @Environment(\.isSelected) var isSelected
     @Environment(\.highlightState) var highlightState
+    @Environment(\.selectionColor) var selectionColor
 
     var item: Item
     var isPainted: Bool
 
     var strokeColor: Color {
-        return isSelected || highlightState == .forSelection ? Color.accentColor : Color.clear
+        return isSelected || highlightState == .forSelection ? selectionColor : Color.clear
     }
 
     var body: some View {

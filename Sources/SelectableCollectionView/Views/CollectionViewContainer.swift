@@ -21,6 +21,7 @@
 #if os(macOS)
 
 import Carbon
+import Combine
 import SwiftUI
 
 import SelectableCollectionViewMacResources
@@ -83,6 +84,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
     private let scrollView: CustomScrollView
     private let collectionView: InteractiveCollectionView
     private var dataSource: DataSource? = nil
+    private var cancellables: Set<AnyCancellable> = []
 
     var provider: ((Element) -> Content?)? = nil
 
@@ -105,7 +107,9 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
             else {
                 return ShortcutItemView()
             }
-            view.configure(AnyView(content), parentHasFocus: collectionView.isFirstResponder)
+            view.configure(AnyView(content),
+                           parentHasFocus: collectionView.isFirstResponder,
+                           parentIsKey: collectionView.window?.isKeyWindow ?? false)
             view.element = item
             return view
         }
@@ -129,6 +133,18 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
 
         collectionView.isSelectable = true
         collectionView.allowsMultipleSelection = true
+
+        // Observe application activity notifications to allow us to update the selection color.
+        let notificationCenter = NotificationCenter.default
+        notificationCenter
+            .publisher(for: NSApplication.didBecomeActiveNotification)
+            .combineLatest(notificationCenter
+                .publisher(for: NSApplication.didResignActiveNotification))
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateSelection()
+            }
+            .store(in: &cancellables)
     }
 
     required init?(coder: NSCoder) {
@@ -150,7 +166,9 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
                 continue
             }
             let content = self.delegate?.collectionViewContainer(self, contentForElement: element)
-            item.configure(AnyView(content), parentHasFocus: collectionView.isFirstResponder)
+            item.configure(AnyView(content),
+                           parentHasFocus: collectionView.isFirstResponder,
+                           parentIsKey: collectionView.window?.isKeyWindow ?? false)
         }
 
         // Update the selection
