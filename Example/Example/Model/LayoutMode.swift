@@ -39,12 +39,15 @@ enum LayoutMode: Equatable, Identifiable, CaseIterable {
 
     var id: Self { self }
 
+    case griditems
     case fixedItemSize
     case column
     case table
 
     var systemImage: String {
         switch self {
+        case .griditems:
+            return "rectangle.3.group"
         case .fixedItemSize:
             return "square"
         case .column:
@@ -56,6 +59,8 @@ enum LayoutMode: Equatable, Identifiable, CaseIterable {
 
     var help: String {
         switch self {
+        case .griditems:
+            return "SwiftUI Column Layout"
         case .fixedItemSize:
             return "Fixed Item Size"
         case .column:
@@ -67,6 +72,11 @@ enum LayoutMode: Equatable, Identifiable, CaseIterable {
 
     var layout: (any Layoutable)? {
         switch self {
+        case .griditems:
+            let columns = [GridItem(.fixed(200)),
+                           GridItem(.flexible(minimum: 150, maximum: 250)),
+                           GridItem(.adaptive(minimum: 300))]
+            return GridItemLayout(columns: columns, spacing: nil)
         case .fixedItemSize:
             return FixedItemSizeLayout(spacing: LayoutMetrics.interItemSpacing,
                                        size: CGSize(width: 200.0, height: 200.0),
