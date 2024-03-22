@@ -67,7 +67,7 @@ class CustomScrollView: NSScrollView {
 
 public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
                                                                         NSCollectionViewDelegate,
-                                                                        CustomCollectionViewMenuDelegate,
+                                                                        InteractiveCollectionViewDelegate,
                                                                         NSCollectionViewDelegateFlowLayout {
 
     weak var delegate: CollectionViewContainerDelegate?
@@ -81,7 +81,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
     typealias Cell = ShortcutItemView
 
     private let scrollView: CustomScrollView
-    private let collectionView: CustomCollectionView
+    private let collectionView: InteractiveCollectionView
     private var dataSource: DataSource? = nil
 
     var provider: ((Element) -> Content?)? = nil
@@ -94,7 +94,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
         scrollView.hasHorizontalScroller = true
         scrollView.autohidesScrollers = false
 
-        collectionView = CustomCollectionView()
+        collectionView = InteractiveCollectionView()
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.collectionViewLayout = layout
         super.init(frame: .zero)
@@ -121,7 +121,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
         scrollView.documentView = collectionView
         collectionView.dataSource = dataSource
         collectionView.delegate = self
-        collectionView.menuDelegate = self
+        collectionView.interactionDelegate = self
 
         let itemNib = NSNib(nibNamed: "ShortcutItemView", bundle: Resources.bundle)
         collectionView.register(itemNib, forItemWithIdentifier: ShortcutItemView.identifier)
@@ -172,7 +172,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
         action()
     }
 
-    func customCollectionView(_ customCollectionView: CustomCollectionView,
+    func customCollectionView(_ customCollectionView: InteractiveCollectionView,
                               contextMenuForSelection _: IndexSet) -> NSMenu? {
 
         guard let menuItems = delegate?.collectionViewContainer(self, menuItemsForElements: selectedElements),
@@ -204,15 +204,15 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
         delegate?.collectionViewContainer(self, didUpdateSelection: selectedElements)
     }
 
-    func customCollectionView(_ customCollectionView: CustomCollectionView, didUpdateSelection selection: Set<IndexPath>) {
+    func customCollectionView(_ customCollectionView: InteractiveCollectionView, didUpdateSelection selection: Set<IndexPath>) {
         updateSelection()
     }
 
-    func customCollectionView(_ customCollectionView: CustomCollectionView, didDoubleClickSelection selection: Set<IndexPath>) {
+    func customCollectionView(_ customCollectionView: InteractiveCollectionView, didDoubleClickSelection selection: Set<IndexPath>) {
         delegate?.collectionViewContainer(self, didDoubleClickSelection: selectedElements)
     }
 
-    func customCollectionView(_ customCollectionView: CustomCollectionView, didUpdateFocus isFirstResponder: Bool) {
+    func customCollectionView(_ customCollectionView: InteractiveCollectionView, didUpdateFocus isFirstResponder: Bool) {
         updateSelection()
     }
 
