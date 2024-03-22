@@ -23,18 +23,18 @@
 import AppKit
 import Carbon
 
-protocol InteractiveCollectionViewDelegate: NSObject {
+protocol CollectionViewInteractionDelegate: NSObject {
 
-    func customCollectionView(_ customCollectionView: InteractiveCollectionView, contextMenuForSelection selection: IndexSet) -> NSMenu?
-    func customCollectionView(_ customCollectionView: InteractiveCollectionView, didUpdateSelection selection: Set<IndexPath>)
-    func customCollectionView(_ customCollectionView: InteractiveCollectionView, didDoubleClickSelection selection: Set<IndexPath>)
-    func customCollectionView(_ customCollectionView: InteractiveCollectionView, didUpdateFocus isFirstResponder: Bool)
+    func collectionView(_ collectionView: InteractiveCollectionView, contextMenuForSelection selection: Set<IndexPath>) -> NSMenu?
+    func collectionView(_ collectionView: InteractiveCollectionView, didUpdateSelection selection: Set<IndexPath>)
+    func collectionView(_ collectionView: InteractiveCollectionView, didDoubleClickSelection selection: Set<IndexPath>)
+    func collectionView(_ collectionView: InteractiveCollectionView, didUpdateFocus isFirstResponder: Bool)
 
 }
 
 class InteractiveCollectionView: NSCollectionView {
 
-    weak var interactionDelegate: InteractiveCollectionViewDelegate?
+    weak var interactionDelegate: CollectionViewInteractionDelegate?
 
     var cursor: IndexPath?
 
@@ -69,11 +69,10 @@ class InteractiveCollectionView: NSCollectionView {
         } else {
             selectionIndexPaths = []
         }
-        interactionDelegate?.customCollectionView(self, didUpdateSelection: selectionIndexPaths)
+        interactionDelegate?.collectionView(self, didUpdateSelection: selectionIndexPaths)
 
         // Get the menu for the current selection.
-#warning("TODO: Update to selectionIndexPaths")
-        if let menu = interactionDelegate?.customCollectionView(self, contextMenuForSelection: selectionIndexes) {
+        if let menu = interactionDelegate?.collectionView(self, contextMenuForSelection: selectionIndexPaths) {
             return menu
         }
 
@@ -178,18 +177,18 @@ class InteractiveCollectionView: NSCollectionView {
 
         // Handle double-click.
         if event.clickCount > 1, !selectionIndexPaths.isEmpty {
-            interactionDelegate?.customCollectionView(self, didDoubleClickSelection: selectionIndexPaths)
+            interactionDelegate?.collectionView(self, didDoubleClickSelection: selectionIndexPaths)
             return
         }
     }
 
     override func becomeFirstResponder() -> Bool {
-        interactionDelegate?.customCollectionView(self, didUpdateFocus: true)
+        interactionDelegate?.collectionView(self, didUpdateFocus: true)
         return super.becomeFirstResponder()
     }
 
     override func resignFirstResponder() -> Bool {
-        interactionDelegate?.customCollectionView(self, didUpdateFocus: false)
+        interactionDelegate?.collectionView(self, didUpdateFocus: false)
         return super.resignFirstResponder()
     }
 
@@ -205,7 +204,7 @@ class InteractiveCollectionView: NSCollectionView {
         if event.modifierFlags.contains(.command),
            event.keyCode == kVK_DownArrow {
             if !selectionIndexPaths.isEmpty {
-                interactionDelegate?.customCollectionView(self, didDoubleClickSelection: selectionIndexPaths)
+                interactionDelegate?.collectionView(self, didDoubleClickSelection: selectionIndexPaths)
             }
             return
         }

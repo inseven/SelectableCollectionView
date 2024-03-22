@@ -67,7 +67,7 @@ class CustomScrollView: NSScrollView {
 
 public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
                                                                         NSCollectionViewDelegate,
-                                                                        InteractiveCollectionViewDelegate,
+                                                                        CollectionViewInteractionDelegate,
                                                                         NSCollectionViewDelegateFlowLayout {
 
     weak var delegate: CollectionViewContainerDelegate?
@@ -172,8 +172,8 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
         action()
     }
 
-    func customCollectionView(_ customCollectionView: InteractiveCollectionView,
-                              contextMenuForSelection _: IndexSet) -> NSMenu? {
+    func collectionView(_ collectionView : InteractiveCollectionView,
+                        contextMenuForSelection _: Set<IndexPath>) -> NSMenu? {
 
         guard let menuItems = delegate?.collectionViewContainer(self, menuItemsForElements: selectedElements),
               !menuItems.isEmpty
@@ -204,15 +204,15 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
         delegate?.collectionViewContainer(self, didUpdateSelection: selectedElements)
     }
 
-    func customCollectionView(_ customCollectionView: InteractiveCollectionView, didUpdateSelection selection: Set<IndexPath>) {
+    func collectionView(_ collectionView: InteractiveCollectionView, didUpdateSelection selection: Set<IndexPath>) {
         updateSelection()
     }
 
-    func customCollectionView(_ customCollectionView: InteractiveCollectionView, didDoubleClickSelection selection: Set<IndexPath>) {
+    func collectionView(_ collectionView: InteractiveCollectionView, didDoubleClickSelection selection: Set<IndexPath>) {
         delegate?.collectionViewContainer(self, didDoubleClickSelection: selectedElements)
     }
 
-    func customCollectionView(_ customCollectionView: InteractiveCollectionView, didUpdateFocus isFirstResponder: Bool) {
+    func collectionView(_ collectionView: InteractiveCollectionView, didUpdateFocus isFirstResponder: Bool) {
         updateSelection()
     }
 
