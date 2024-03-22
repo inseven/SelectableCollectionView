@@ -18,10 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if os(macOS)
 
+import Foundation
+
+#if os(macOS)
 import AppKit
 import Carbon
+#endif
 
 enum NavigationDirection {
     case up
@@ -29,6 +32,7 @@ enum NavigationDirection {
     case left
     case right
 
+#if os(macOS)
     init?(_ keyCode: UInt16) {
         switch Int(keyCode) {
         case kVK_LeftArrow:
@@ -43,7 +47,6 @@ enum NavigationDirection {
             return nil
         }
     }
+#endif
 
 }
-
-#endif
