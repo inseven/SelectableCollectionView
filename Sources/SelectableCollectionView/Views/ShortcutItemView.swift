@@ -53,6 +53,7 @@ class ShortcutItemView: NSCollectionViewItem {
     }
 
     private var parentHasFocus: Bool = false
+    private var parentIsKey: Bool = false
 
     override init(nibName nibNameOrNil: NSNib.Name?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nil, bundle: Resources.bundle)
@@ -63,10 +64,11 @@ class ShortcutItemView: NSCollectionViewItem {
     }
 
     private func host(_ content: AnyView) {
+
         let modifiedContent = AnyView(content
             .environment(\.isSelected, isSelected)
             .environment(\.highlightState, .init(highlightState))
-            .environment(\.selectionColor, parentHasFocus ? Color(nsColor: .selectedContentBackgroundColor) : Color(nsColor: .unemphasizedSelectedContentBackgroundColor)))
+            .environment(\.selectionColor, parentHasFocus && parentIsKey ? Color(nsColor: .selectedContentBackgroundColor) : Color(nsColor: .unemphasizedSelectedContentBackgroundColor)))
         if let hostingView = hostingView {
             hostingView.rootView = modifiedContent
         } else {
@@ -81,14 +83,15 @@ class ShortcutItemView: NSCollectionViewItem {
 #warning("TODO: Not sure if this is necessary")
     override func prepareForReuse() {
         super.prepareForReuse()
-        configure(AnyView(EmptyView()), parentHasFocus: false)
+        configure(AnyView(EmptyView()), parentHasFocus: false, parentIsKey: false)
     }
 
 #warning("TODO: Called by the data source")
 #warning("TODO: This should take an item")
-    func configure(_ content: AnyView, parentHasFocus: Bool) {
+    func configure(_ content: AnyView, parentHasFocus: Bool, parentIsKey: Bool) {
         self.content = content
         self.parentHasFocus = parentHasFocus
+        self.parentIsKey = parentIsKey
         host(content)
     }
 
