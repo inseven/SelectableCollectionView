@@ -18,17 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+import Foundation
 
-public struct SelectionColor: EnvironmentKey {
-    public static let defaultValue: Color = .accentColor
+enum SequenceDirection {
+    case forwards
+    case backwards
+
+    static prefix func !(direction: SequenceDirection) -> SequenceDirection {
+        switch direction {
+        case .forwards:
+            return .backwards
+        case .backwards:
+            return .forwards
+        }
+
+    }
 }
 
-extension EnvironmentValues {
+extension NavigationDirection {
 
-    public var selectionColor: Color {
-        get { self[SelectionColor.self] }
-        set { self[SelectionColor.self] = newValue }
+    var sequenceDirection: SequenceDirection {
+        switch self {
+        case .up, .left:
+            return .backwards
+        case .down, .right:
+            return .forwards
+        }
     }
 
 }

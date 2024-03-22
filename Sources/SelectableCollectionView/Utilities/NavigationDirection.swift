@@ -18,17 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+#if os(macOS)
 
-public struct SelectionColor: EnvironmentKey {
-    public static let defaultValue: Color = .accentColor
-}
+import AppKit
+import Carbon
 
-extension EnvironmentValues {
+enum NavigationDirection {
+    case up
+    case down
+    case left
+    case right
 
-    public var selectionColor: Color {
-        get { self[SelectionColor.self] }
-        set { self[SelectionColor.self] = newValue }
+    init?(_ keyCode: UInt16) {
+        switch Int(keyCode) {
+        case kVK_LeftArrow:
+            self = .left
+        case kVK_RightArrow:
+            self = .right
+        case kVK_UpArrow:
+            self = .up
+        case kVK_DownArrow:
+            self = .down
+        default:
+            return nil
+        }
     }
 
 }
+
+#endif
