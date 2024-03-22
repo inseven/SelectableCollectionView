@@ -18,17 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+import Foundation
 
-public struct SelectionColor: EnvironmentKey {
-    public static let defaultValue: Color = .accentColor
-}
+struct CollectionViewNavigationResult {
+    let nextIndexPath: IndexPath
+    let intermediateIndexPaths: [IndexPath]
 
-extension EnvironmentValues {
-
-    public var selectionColor: Color {
-        get { self[SelectionColor.self] }
-        set { self[SelectionColor.self] = newValue }
+    init?(nextIndexPath: IndexPath?, intermediateIndexPaths: [IndexPath] = []) {
+        guard let nextIndexPath else {
+            return nil
+        }
+        self.nextIndexPath = nextIndexPath
+        self.intermediateIndexPaths = intermediateIndexPaths
     }
-
 }
