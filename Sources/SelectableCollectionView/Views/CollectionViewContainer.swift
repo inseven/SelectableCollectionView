@@ -175,7 +175,12 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
         let indexPaths = selection.compactMap { element in
             return dataSource?.indexPath(for: element)
         }
-        collectionView.selectionIndexPaths = Set(indexPaths)
+
+        // Updating the selection at the same time as the items seems to cause some form of loop or deadlock, so we
+        // break that by dispatching back to the main queue.
+        DispatchQueue.main.async {
+            self.collectionView.selectionIndexPaths = Set(indexPaths)
+        }
 
     }
 
