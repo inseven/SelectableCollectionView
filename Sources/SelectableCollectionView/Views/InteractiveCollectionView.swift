@@ -87,7 +87,6 @@ class InteractiveCollectionView: NSCollectionView {
     }
 
     override func mouseDown(with event: NSEvent) {
-
         window?.makeFirstResponder(self)
 
         let position = self.convert(event.locationInWindow, from: nil)
