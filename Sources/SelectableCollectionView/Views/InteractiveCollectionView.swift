@@ -79,8 +79,14 @@ class InteractiveCollectionView: NSCollectionView {
         return super.menu(for: event)
     }
 
-    override func mouseDown(with event: NSEvent) {
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        guard NSApp.isActive else {
+            return nil
+        }
+        return super.hitTest(point)
+    }
 
+    override func mouseDown(with event: NSEvent) {
         window?.makeFirstResponder(self)
 
         let position = self.convert(event.locationInWindow, from: nil)
