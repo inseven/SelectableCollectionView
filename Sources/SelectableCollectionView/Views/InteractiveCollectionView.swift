@@ -81,6 +81,11 @@ class InteractiveCollectionView: NSCollectionView {
 
     override func mouseDown(with event: NSEvent) {
 
+        // Ignore events if we're not the key window.
+        guard (self.window?.isKeyWindow ?? false) else {
+            return
+        }
+
         window?.makeFirstResponder(self)
 
         let position = self.convert(event.locationInWindow, from: nil)
@@ -173,6 +178,12 @@ class InteractiveCollectionView: NSCollectionView {
     }
 
     override func mouseUp(with event: NSEvent) {
+
+        // Ignore events if we're not the key window.
+        guard (self.window?.isKeyWindow ?? false) else {
+            return
+        }
+
         super.mouseUp(with: event)
 
         // Handle double-click.
