@@ -158,7 +158,9 @@ class InteractiveCollectionView: NSCollectionView {
                     cursor = indexPath
                 }
 
-            } else {
+            } else if !selectionIndexPaths.contains(indexPath) {
+
+                // Select a clicked item if it's not within the current selection.
 
                 let selectionIndexPaths = selectionIndexPaths
                 deselectItems(at: selectionIndexPaths)
