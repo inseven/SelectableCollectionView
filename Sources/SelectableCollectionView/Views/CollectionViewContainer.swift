@@ -195,14 +195,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
         action()
     }
 
-    func collectionView(_ collectionView : InteractiveCollectionView,
-                        contextMenuForSelection _: Set<IndexPath>) -> NSMenu? {
-
-        guard let menuItems = delegate?.collectionViewContainer(self, menuItemsForElements: selectedElements),
-              !menuItems.isEmpty
-        else {
-            return nil
-        }
+    func contextMenu(for menuItems: [MenuItem]) -> NSMenu {
         let menu = NSMenu()
         menu.items = menuItems.map { menuItem in
             switch menuItem.itemType {
@@ -214,9 +207,24 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
                 return menuItem
             case .separator:
                 return NSMenuItem.separator()
+            case .menu(let title, let menuItems):
+                let menuItem = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+                menuItem.submenu = contextMenu(for: menuItems)
+                return menuItem
             }
         }
         return menu
+    }
+
+    func collectionView(_ collectionView : InteractiveCollectionView,
+                        contextMenuForSelection _: Set<IndexPath>) -> NSMenu? {
+
+        guard let menuItems = delegate?.collectionViewContainer(self, menuItemsForElements: selectedElements),
+              !menuItems.isEmpty
+        else {
+            return nil
+        }
+        return contextMenu(for: menuItems)
     }
 
     var selectedElements: Set<Element> {
