@@ -207,7 +207,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
                 return menuItem
             case .separator:
                 return NSMenuItem.separator()
-            case .menu(let title, let menuItems):
+            case .menu(let title, _, let menuItems):
                 let menuItem = NSMenuItem(title: title, action: nil, keyEquivalent: "")
                 menuItem.submenu = contextMenu(for: menuItems)
                 return menuItem
