@@ -22,8 +22,6 @@
 
 import SwiftUI
 
-import Interact
-
 public struct CollectionViewContainerHost<Data: RandomAccessCollection,
                                           Content: View>: NSViewRepresentable where Data.Element: Identifiable,
                                                                                     Data.Element: Hashable,

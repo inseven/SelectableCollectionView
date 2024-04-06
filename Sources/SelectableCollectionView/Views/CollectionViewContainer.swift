@@ -26,8 +26,6 @@ import SwiftUI
 
 import SelectableCollectionViewMacResources
 
-import Interact
-
 #warning("TODO: Rename element to ID to avoid confusion?")
 
 protocol CollectionViewContainerDelegate: NSObject {
