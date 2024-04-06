@@ -2,7 +2,7 @@
 
 import SwiftUI
 
-public extension LocalizedStringKey {
+extension LocalizedStringKey {
 
     private typealias FArgs = (CVarArg, Formatter?)
 
