@@ -20,8 +20,6 @@
 
 import SwiftUI
 
-import Interact
-
 #if os(macOS)
 
 public struct SelectableCollectionView<Data: RandomAccessCollection,
