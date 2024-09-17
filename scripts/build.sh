@@ -11,4 +11,4 @@ cd "$ROOT_DIRECTORY"
 
 xcodebuild -scheme SelectableCollectionView -showdestinations
 xcodebuild -scheme SelectableCollectionView -destination "platform=macOS" clean build
-xcodebuild -scheme SelectableCollectionView -destination "platform=iOS Simulator,name=iPhone 14 Pro" clean build
+xcodebuild -scheme SelectableCollectionView -destination "$DEFAULT_IPHONE_DESTINATION" clean build
