@@ -36,7 +36,7 @@ jobs:
       run: scripts/release.sh
 
   documentation-build:
-    runs-on: inseven-macos-14
+    runs-on: inseven-macos-26
     steps:
 
     - name: Checkout repository
