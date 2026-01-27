@@ -26,8 +26,6 @@ import SelectableCollectionView
 // TODO: Make this a model so we can reuse it in other SwiftUI; good performance test too.
 class Creator: CollectionViewStreamingCollection {
 
-    var supportsIncrementalUpdates: Bool { true }
-
     private var collectionView: (any CollectionViewProxy<Item>)? = nil
     private var items: [Item] = []
 
@@ -50,7 +48,7 @@ class Creator: CollectionViewStreamingCollection {
 
     func collectionViewDidConnect(_ collectionView: (any CollectionViewProxy<Item>)?) {
         self.collectionView = collectionView
-        self.collectionView?.updateItems(Array(items))
+        self.collectionView?.setItems(Array(items))
     }
 
 }

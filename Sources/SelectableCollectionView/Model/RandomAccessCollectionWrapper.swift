@@ -35,7 +35,7 @@ class RandomAccessCollectionWrapper<Element: Identifiable & Hashable>: Collectio
     }
 
     func update() {
-        self.collectionView?.updateItems(Array(items))
+        self.collectionView?.setItems(Array(items))
     }
 
 }

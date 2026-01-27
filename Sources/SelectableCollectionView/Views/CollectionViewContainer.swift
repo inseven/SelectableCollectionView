@@ -258,7 +258,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
         super.keyUp(with: event)
     }
 
-    public func updateItems(_ items: [Element]) {
+    public func setItems(_ items: [Element]) {
         dispatchPrecondition(condition: .onQueue(.main))
         self.update(items, selection: [])
     }

@@ -32,7 +32,7 @@ public protocol CollectionViewProxy<Element> {
 
     associatedtype Element: Identifiable & Hashable
 
-    func updateItems(_ items: [Element])  // TODO: Set items?
+    func setItems(_ items: [Element])
     func insertItem(_ item: Element, atIndex index: Int, items: [Element])
     func updateItem(_ item: Element, atIndex index: Int, items: [Element])
     func removeItemWithIdentifier(_ identifier: Element.ID, atIndex index: Int, items: [Element])
