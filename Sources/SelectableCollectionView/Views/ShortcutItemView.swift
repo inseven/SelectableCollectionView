@@ -24,8 +24,6 @@ import SwiftUI
 
 import SelectableCollectionViewMacResources
 
-// TODO: RENAME RENAME RENAME
-// TODO: Can we type this internally?
 class ShortcutItemView: NSCollectionViewItem {
 
     static let identifier = NSUserInterfaceItemIdentifier(rawValue: "CollectionViewItem")
