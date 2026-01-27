@@ -23,8 +23,6 @@ import SwiftUI
 
 import SelectableCollectionView
 
-
-
 struct ContentView: View {
 
     @StateObject var model = Model()
@@ -45,20 +43,23 @@ struct ContentView: View {
     var body: some View {
         HStack {
             if let layout = model.layoutMode.layout {
-                SelectableCollectionView(creator, selection: $model.selection, layout: layout) { item in
-                    Cell(item: item, isPainted: model.isPainted)
-                } contextMenu: { selection in
-                    contextMenu(selection)
-                } primaryAction: { selection in
-                    primaryAction(selection)
+                if model.isStreaming {
+                    SelectableCollectionView(creator, selection: $model.selection, layout: layout) { item in
+                        Cell(item: item, isPainted: model.isPainted)
+                    } contextMenu: { selection in
+                        contextMenu(selection)
+                    } primaryAction: { selection in
+                        primaryAction(selection)
+                    }
+                } else {
+                    SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
+                        Cell(item: item, isPainted: model.isPainted)
+                    } contextMenu: { selection in
+                        contextMenu(selection)
+                    } primaryAction: { selection in
+                        primaryAction(selection)
+                    }
                 }
-//                SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
-//                    Cell(item: item, isPainted: model.isPainted)
-//                } contextMenu: { selection in
-//                    contextMenu(selection)
-//                } primaryAction: { selection in
-//                    primaryAction(selection)
-//                }
             } else {
                 Table(model.filteredItems, selection: $model.selection) {
                     TableColumn("") { item in
@@ -76,6 +77,7 @@ struct ContentView: View {
         }
         .searchable(text: $model.filter)
         .toolbar(id: "main") {
+            StreamingToolbar(isStreaming: $model.isStreaming)
             LayoutToolbar(mode: $model.layoutMode)
             SelectionToolbar()
             StateToolbar()

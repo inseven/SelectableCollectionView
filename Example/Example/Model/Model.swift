@@ -21,8 +21,7 @@
 import Combine
 import SwiftUI
 
-#warning("TODO: What thread is the filter running on?")
-class Model: ObservableObject {
+class Model: ObservableObject, @unchecked Sendable {
 
     @Environment(\.openURL) private var openURL
 
@@ -33,6 +32,7 @@ class Model: ObservableObject {
     @Published var isPainted = false
     @Published var layoutMode: LayoutMode = .column
     @Published var subtitle: String = ""
+    @Published var isStreaming: Bool = true
 
     private var cancellables: Set<AnyCancellable> = []
     private var backgroundQueue = DispatchQueue(label: "backgroundQueue")
