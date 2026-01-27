@@ -50,6 +50,7 @@ class Creator: CollectionViewStreamingCollection {
 
     func collectionViewDidConnect(_ collectionView: (any CollectionViewProxy<Item>)?) {
         self.collectionView = collectionView
+        self.collectionView?.updateItems(Array(items))
     }
 
 }

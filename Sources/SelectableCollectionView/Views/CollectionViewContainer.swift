@@ -48,8 +48,6 @@ public protocol CollectionViewContainerDelegate: NSObject {
                                  keyUp event: NSEvent) -> Bool
 }
 
-
-
 public class CollectionViewContainer<Element: Hashable, Content: View, Delegate: CollectionViewContainerDelegate>
 : NSView,
   NSCollectionViewDelegate,
