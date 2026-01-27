@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 Jason Morley
+// Copyright (c) 2022-2026 Jason Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,14 +20,9 @@
 
 import SwiftUI
 
-// CollectionViewCollectionDelegate
+// TODO: Document.
 // Must always be called on the main thread.
-
-
-// TODO: Rename to CollectionViewCollection of similar.
-// TODO: Would it make sense to have a start or stop to still make this a SwiftUI managed lifecycle?
 // Always called on the main thread.
-// TODO: This perhaps doesn't need to be a protocol itself since it's only implemented in one place?
 protocol CollectionViewManagedCollection<Element> {
 
     associatedtype Element: Identifiable & Hashable
