@@ -48,30 +48,13 @@ public protocol CollectionViewContainerDelegate: NSObject {
                                  keyUp event: NSEvent) -> Bool
 }
 
-class CustomScrollView: NSScrollView {
 
-    override func keyDown(with event: NSEvent) {
-        if event.keyCode == kVK_Space {
-            nextResponder?.keyDown(with: event)
-            return
-        }
-        super.keyDown(with: event)
-    }
-
-    override func keyUp(with event: NSEvent) {
-        if event.keyCode == kVK_Space {
-            nextResponder?.keyUp(with: event)
-            return
-        }
-        super.keyUp(with: event)
-    }
-
-}
 
 public class CollectionViewContainer<Element: Hashable, Content: View, Delegate: CollectionViewContainerDelegate>
 : NSView,
   NSCollectionViewDelegate,
   CollectionViewInteractionDelegate,
+  CollectionViewProxy,
   NSCollectionViewDelegateFlowLayout where Delegate.Element == Element,
                                            Delegate.CellContent == Content {
 
@@ -87,7 +70,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
 
     private let scrollView: CustomScrollView
     private let collectionView: InteractiveCollectionView
-    private var dataSource: DataSource? = nil
+    private var dataSource: DataSource! = nil
     private var cancellables: Set<AnyCancellable> = []
 
     var provider: ((Element) -> Content?)? = nil
@@ -155,7 +138,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
         fatalError("init(coder:) has not been implemented")
     }
 
-    @MainActor func update(_ items: [Element], selection: Set<Element>) {
+    @MainActor private func update(_ items: [Element], selection: Set<Element>) {
 
         // Update the items.
         var snapshot = Snapshot()
@@ -275,6 +258,39 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
             return
         }
         super.keyUp(with: event)
+    }
+
+    public func updateItems(_ items: [Element]) {
+        dispatchPrecondition(condition: .onQueue(.main))
+        self.update(items, selection: [])
+    }
+
+    public func insertItem(_ item: Element, atIndex index: Int, items: [Element]) {
+        dispatchPrecondition(condition: .onQueue(.main))
+
+        var snapshot = dataSource.snapshot()
+
+        if snapshot.numberOfSections < 1 {
+            snapshot.appendSections([.none])
+        }
+
+        if index < snapshot.itemIdentifiers.count {
+            let beforeItem = snapshot.itemIdentifiers[index]
+            snapshot.insertItems([item], beforeItem: beforeItem)
+        } else if index == snapshot.itemIdentifiers.count {
+            snapshot.appendItems([item])
+        } else {
+            fatalError("Attempting to insert an item beyond the end of the list.")
+        }
+
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+
+    public func updateItem(_ item: Element, atIndex index: Int, items: [Element]) {
+
+    }
+
+    public func removeItemWithIdentifier(_ identifier: Element.ID, atIndex index: Int, items: [Element]) {
     }
 
 }

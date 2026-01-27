@@ -20,12 +20,25 @@
 
 #if os(macOS)
 
-import Foundation
+import Carbon
+import SwiftUI
 
-extension NSEdgeInsets: @retroactive Equatable {
+class CustomScrollView: NSScrollView {
 
-    public static func == (lhs: NSEdgeInsets, rhs: NSEdgeInsets) -> Bool {
-        return NSEdgeInsetsEqual(lhs, rhs)
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == kVK_Space {
+            nextResponder?.keyDown(with: event)
+            return
+        }
+        super.keyDown(with: event)
+    }
+
+    override func keyUp(with event: NSEvent) {
+        if event.keyCode == kVK_Space {
+            nextResponder?.keyUp(with: event)
+            return
+        }
+        super.keyUp(with: event)
     }
 
 }

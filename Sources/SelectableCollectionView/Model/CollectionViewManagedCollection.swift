@@ -18,16 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if os(macOS)
+import SwiftUI
 
-import Foundation
+// CollectionViewCollectionDelegate
+// Must always be called on the main thread.
 
-extension NSEdgeInsets: @retroactive Equatable {
 
-    public static func == (lhs: NSEdgeInsets, rhs: NSEdgeInsets) -> Bool {
-        return NSEdgeInsetsEqual(lhs, rhs)
-    }
+// TODO: Rename to CollectionViewCollection of similar.
+// TODO: Would it make sense to have a start or stop to still make this a SwiftUI managed lifecycle?
+// Always called on the main thread.
+// TODO: This perhaps doesn't need to be a protocol itself since it's only implemented in one place?
+protocol CollectionViewManagedCollection<Element> {
+
+    associatedtype Element: Identifiable & Hashable
+
+    var supportsIncrementalUpdates: Bool { get }
+
+    func collectionViewDidConnect(_ collectionView: (any CollectionViewProxy<Element>)?)
+
+    func update()
 
 }
-
-#endif

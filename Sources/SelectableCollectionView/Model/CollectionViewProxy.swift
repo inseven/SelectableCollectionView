@@ -18,16 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if os(macOS)
+import SwiftUI
 
-import Foundation
+/**
+ * Proxy protocol for managing a collection view.
+ *
+ * This allows streaming collections to directly apply changes to the collection view.
+ *
+ * Implementations conforming to this protocol make no attempt at thread safety and methods must be called on the main
+ * thread.
+ */
+public protocol CollectionViewProxy<Element> {
 
-extension NSEdgeInsets: @retroactive Equatable {
+    associatedtype Element: Identifiable & Hashable
 
-    public static func == (lhs: NSEdgeInsets, rhs: NSEdgeInsets) -> Bool {
-        return NSEdgeInsetsEqual(lhs, rhs)
-    }
+    func updateItems(_ items: [Element])  // TODO: Set items?
+    func insertItem(_ item: Element, atIndex index: Int, items: [Element])
+    func updateItem(_ item: Element, atIndex index: Int, items: [Element])
+    func removeItemWithIdentifier(_ identifier: Element.ID, atIndex index: Int, items: [Element])
 
 }
-
-#endif

@@ -22,30 +22,32 @@ import SwiftUI
 
 #if os(macOS)
 
-public struct SelectableCollectionView<Data: RandomAccessCollection,
-                                       Content: View>: View where Data.Element: Identifiable,
-                                                                  Data.Element: Hashable,
-                                                                  Data.Element.ID: Hashable {
+// TODO: Rename to wrapper????
+public struct SelectableCollectionView<Element,
+                                       Content: View>: View where Element: Identifiable,
+                                                                  Element: Hashable,
+                                                                  Element.ID: Hashable {
 
-    let items: Data
-    let selection: Binding<Set<Data.Element.ID>>
+    let collection: AnyCollectionViewManagedCollection<Element>
+
+    let selection: Binding<Set<Element.ID>>
     let layout: any Layoutable
-    let itemContent: (Data.Element) -> Content
-    let contextMenu: (Set<Data.Element.ID>) -> [MenuItem]
-    let primaryAction: (Set<Data.Element.ID>) -> ()
+    let itemContent: (Element) -> Content
+    let contextMenu: (Set<Element.ID>) -> [MenuItem]
+    let primaryAction: (Set<Element.ID>) -> ()
     let keyDown: (NSEvent) -> Bool
     let keyUp: (NSEvent) -> Bool
 
-    public init(_ items: Data,
-                selection: Binding<Set<Data.Element.ID>>,
+    public init(_ items: any RandomAccessCollection<Element>,
+                selection: Binding<Set<Element.ID>>,
                 columns: [GridItem],
                 spacing: CGFloat? = nil,
-                @ViewBuilder itemContent: @escaping (Data.Element) -> Content,
-                @MenuItemBuilder contextMenu: @escaping (Set<Data.Element.ID>) -> [MenuItem],
-                primaryAction: @escaping (Set<Data.Element.ID>) -> Void,
+                @ViewBuilder itemContent: @escaping (Element) -> Content,
+                @MenuItemBuilder contextMenu: @escaping (Set<Element.ID>) -> [MenuItem],
+                primaryAction: @escaping (Set<Element.ID>) -> Void,
                 keyDown: @escaping (NSEvent) -> Bool = { _ in return false },
                 keyUp: @escaping (NSEvent) -> Bool = { _ in return false }) {
-        self.items = items
+        self.collection = AnyCollectionViewManagedCollection(items)
         self.selection = selection
         self.layout = GridItemLayout(columns: columns, spacing: spacing)
         self.itemContent = itemContent
@@ -55,15 +57,34 @@ public struct SelectableCollectionView<Data: RandomAccessCollection,
         self.keyUp = keyUp
     }
 
-    public init(_ items: Data,
-                selection: Binding<Set<Data.Element.ID>>,
+    public init(_ items: any RandomAccessCollection<Element>,
+                selection: Binding<Set<Element.ID>>,
                 layout: any Layoutable,
-                @ViewBuilder itemContent: @escaping (Data.Element) -> Content,
-                @MenuItemBuilder contextMenu: @escaping (Set<Data.Element.ID>) -> [MenuItem],
-                primaryAction: @escaping (Set<Data.Element.ID>) -> Void,
+                @ViewBuilder itemContent: @escaping (Element) -> Content,
+                @MenuItemBuilder contextMenu: @escaping (Set<Element.ID>) -> [MenuItem],
+                primaryAction: @escaping (Set<Element.ID>) -> Void,
                 keyDown: @escaping (NSEvent) -> Bool = { _ in return false },
                 keyUp: @escaping (NSEvent) -> Bool = { _ in return false }) {
-        self.items = items
+        self.collection = AnyCollectionViewManagedCollection(items)
+        self.selection = selection
+        self.layout = layout
+        self.itemContent = itemContent
+        self.contextMenu = contextMenu
+        self.primaryAction = primaryAction
+        self.keyDown = keyDown
+        self.keyUp = keyUp
+    }
+
+    // Streaming Collection?
+    public init(_ collection: any CollectionViewStreamingCollection<Element>,
+                selection: Binding<Set<Element.ID>>,
+                layout: any Layoutable,
+                @ViewBuilder itemContent: @escaping (Element) -> Content,
+                @MenuItemBuilder contextMenu: @escaping (Set<Element.ID>) -> [MenuItem],
+                primaryAction: @escaping (Set<Element.ID>) -> Void,
+                keyDown: @escaping (NSEvent) -> Bool = { _ in return false },
+                keyUp: @escaping (NSEvent) -> Bool = { _ in return false }) {
+        self.collection = AnyCollectionViewManagedCollection(collection)
         self.selection = selection
         self.layout = layout
         self.itemContent = itemContent
@@ -74,7 +95,7 @@ public struct SelectableCollectionView<Data: RandomAccessCollection,
     }
 
     public var body: some View {
-        CollectionViewContainerHost(items,
+        CollectionViewContainerHost(collection,
                                     selection: selection,
                                     layout: layout,
                                     itemContent: itemContent,

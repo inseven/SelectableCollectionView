@@ -18,16 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if os(macOS)
+import SwiftUI
 
-import Foundation
+class RandomAccessCollectionWrapper<Element: Identifiable & Hashable>: CollectionViewManagedCollection {
 
-extension NSEdgeInsets: @retroactive Equatable {
+    var supportsIncrementalUpdates: Bool { false }
+    let items: any RandomAccessCollection<Element>
+    var collectionView: (any CollectionViewProxy<Element>)?
 
-    public static func == (lhs: NSEdgeInsets, rhs: NSEdgeInsets) -> Bool {
-        return NSEdgeInsetsEqual(lhs, rhs)
+    init(items: any RandomAccessCollection<Element>) {
+        self.items = items
+    }
+
+    func collectionViewDidConnect(_ collectionView: (any CollectionViewProxy<Element>)?) {
+        self.collectionView = collectionView
+    }
+
+    func update() {
+        self.collectionView?.updateItems(Array(items))
     }
 
 }
-
-#endif

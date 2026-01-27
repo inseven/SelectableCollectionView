@@ -23,9 +23,12 @@ import SwiftUI
 
 import SelectableCollectionView
 
+
+
 struct ContentView: View {
 
     @StateObject var model = Model()
+    let creator = Creator()
 
     @MenuItemBuilder func contextMenu(_ selection: Set<Item.ID>) -> [MenuItem] {
         if !selection.isEmpty {
@@ -42,13 +45,20 @@ struct ContentView: View {
     var body: some View {
         HStack {
             if let layout = model.layoutMode.layout {
-                SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
+                SelectableCollectionView(creator, selection: $model.selection, layout: layout) { item in
                     Cell(item: item, isPainted: model.isPainted)
                 } contextMenu: { selection in
                     contextMenu(selection)
                 } primaryAction: { selection in
                     primaryAction(selection)
                 }
+//                SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
+//                    Cell(item: item, isPainted: model.isPainted)
+//                } contextMenu: { selection in
+//                    contextMenu(selection)
+//                } primaryAction: { selection in
+//                    primaryAction(selection)
+//                }
             } else {
                 Table(model.filteredItems, selection: $model.selection) {
                     TableColumn("") { item in

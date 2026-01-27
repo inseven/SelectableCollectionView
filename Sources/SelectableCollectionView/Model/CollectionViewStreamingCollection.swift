@@ -18,16 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if os(macOS)
+import SwiftUI
 
-import Foundation
+// Always called on the main thread.
+public protocol CollectionViewStreamingCollection<Element>: AnyObject {
 
-extension NSEdgeInsets: @retroactive Equatable {
+    associatedtype Element: Identifiable & Hashable
 
-    public static func == (lhs: NSEdgeInsets, rhs: NSEdgeInsets) -> Bool {
-        return NSEdgeInsetsEqual(lhs, rhs)
-    }
+    func collectionViewDidConnect(_ collectionView: (any CollectionViewProxy<Element>)?)
 
 }
-
-#endif
