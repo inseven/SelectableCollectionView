@@ -23,14 +23,18 @@
 import SwiftUI
 
 public struct CollectionViewContainerHost<Data: RandomAccessCollection,
-                                          Content: View>: NSViewRepresentable where Data.Element: Identifiable,
-                                                                                    Data.Element: Hashable,
-                                                                                    Data.Element.ID: Hashable {
+                                          Content: View>
+: NSViewRepresentable where Data.Element: Identifiable,
+                            Data.Element: Hashable,
+                            Data.Element.ID: Hashable {
 
     public typealias ID = Data.Element.ID
     public typealias Element = Data.Element
 
-    public class Coordinator: NSObject, CollectionViewContainerDelegate {
+    public final class Coordinator: NSObject, CollectionViewContainerDelegate {
+
+        public typealias Element = Data.Element
+        public typealias CellContent = Content
 
         var parent: CollectionViewContainerHost<Data, Content>
         var collectionViewLayoutHash: Int = 0
@@ -39,50 +43,36 @@ public struct CollectionViewContainerHost<Data: RandomAccessCollection,
             self.parent = parent
         }
 
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                       menuItemsForElements elements: Set<Element>) -> [MenuItem] where Element : Hashable, Content : View {
-            guard let elements = elements as? Set<Data.Element> else {
-                return []
-            }
+        public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
+                                            menuItemsForElements elements: Set<Element>) -> [MenuItem] {
             let ids = Set(elements.map { $0.id })
             return parent.contextMenu(ids)
         }
 
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                       contentForElement element: Element) -> Content? where Element : Hashable, Content : View {
-#warning("TODO: These guards shouldn't be necessary?")
-            guard let element = element as? Data.Element,
-                  let content = parent.itemContent(element) as? Content else {
-                return nil
-            }
-            return content
+        public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
+                                            contentForElement element: Element) -> Content? {
+            return parent.itemContent(element)
         }
 
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                       didUpdateSelection selection: Set<Element>) where Element : Hashable, Content : View {
-            guard let selection = selection as? Set<Data.Element> else {
-                return
-            }
+        public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
+                                            didUpdateSelection selection: Set<Element>) {
             let ids = Set(selection.map { $0.id })
             parent.selection.wrappedValue = ids
         }
 
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                       didDoubleClickSelection selection: Set<Element>) where Element : Hashable, Content : View {
-            guard let selection = selection as? Set<Data.Element> else {
-                return
-            }
+        public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
+                                            didDoubleClickSelection selection: Set<Element>) {
             let ids = Set(selection.map { $0.id })
             parent.primaryAction(ids)
         }
 
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                       keyDown event: NSEvent) -> Bool where Element : Hashable, Content : View {
+        public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
+                                            keyDown event: NSEvent) -> Bool {
             return parent.keyDown(event)
         }
 
-        func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                       keyUp event: NSEvent) -> Bool where Element : Hashable, Content : View {
+        public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
+                                            keyUp event: NSEvent) -> Bool {
             return parent.keyUp(event)
         }
 
@@ -119,15 +109,14 @@ public struct CollectionViewContainerHost<Data: RandomAccessCollection,
         return Coordinator(self)
     }
 
-    public func makeNSView(context: Context) -> CollectionViewContainer<Element, Content> {
-        let collectionView = CollectionViewContainer<Element, Content>(layout: layout.makeLayout())
+    public func makeNSView(context: Context) -> CollectionViewContainer<Element, Content, Coordinator> {
+        let collectionView = CollectionViewContainer<Element, Content, Coordinator>(layout: layout.makeLayout())
         collectionView.delegate = context.coordinator
         return collectionView
     }
 
-    public func updateNSView(_ collectionView: CollectionViewContainer<Element, Content>, context: Context) {
+    public func updateNSView(_ collectionView: CollectionViewContainer<Element, Content, Coordinator>, context: Context) {
         context.coordinator.parent = self
-#warning("TODO: We shouldn't need to copy this into an array?")
         let selectedElements = items.filter { selection.wrappedValue.contains($0.id) }
         collectionView.update(Array(items), selection: Set(selectedElements))
 
@@ -137,7 +126,6 @@ public struct CollectionViewContainerHost<Data: RandomAccessCollection,
             context.coordinator.collectionViewLayoutHash = layout.hashValue
         }
     }
-
 }
 
 #endif
