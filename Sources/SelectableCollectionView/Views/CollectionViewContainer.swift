@@ -26,22 +26,26 @@ import SwiftUI
 
 import SelectableCollectionViewMacResources
 
-#warning("TODO: Rename element to ID to avoid confusion?")
+// TODO: Rename element to ID to avoid confusion?
 
-protocol CollectionViewContainerDelegate: NSObject {
-    func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                   menuItemsForElements elements: Set<Element>) -> [MenuItem]
-    func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                   contentForElement element: Element) -> Content?
-    func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                   didUpdateSelection selection: Set<Element>)
-    func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                   didDoubleClickSelection selection: Set<Element>)
+public protocol CollectionViewContainerDelegate: NSObject {
 
-    func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                   keyDown event: NSEvent) -> Bool
-    func collectionViewContainer<Element, Content>(_ collectionViewContainer: CollectionViewContainer<Element, Content>,
-                                                   keyUp event: NSEvent) -> Bool
+    associatedtype Element: Hashable & Identifiable
+    associatedtype CellContent: View
+
+    func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, CellContent, Self>,
+                                 menuItemsForElements elements: Set<Element>) -> [MenuItem]
+    func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, CellContent, Self>,
+                                 contentForElement element: Element) -> CellContent?
+    func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, CellContent, Self>,
+                                 didUpdateSelection selection: Set<Element>)
+    func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, CellContent, Self>,
+                                 didDoubleClickSelection selection: Set<Element>)
+
+    func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, CellContent, Self>,
+                                 keyDown event: NSEvent) -> Bool
+    func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, CellContent, Self>,
+                                 keyUp event: NSEvent) -> Bool
 }
 
 class CustomScrollView: NSScrollView {
@@ -64,12 +68,14 @@ class CustomScrollView: NSScrollView {
 
 }
 
-public class CollectionViewContainer<Element: Hashable, Content: View>: NSView,
-                                                                        NSCollectionViewDelegate,
-                                                                        CollectionViewInteractionDelegate,
-                                                                        NSCollectionViewDelegateFlowLayout {
+public class CollectionViewContainer<Element: Hashable, Content: View, Delegate: CollectionViewContainerDelegate>
+: NSView,
+  NSCollectionViewDelegate,
+  CollectionViewInteractionDelegate,
+  NSCollectionViewDelegateFlowLayout where Delegate.Element == Element,
+                                           Delegate.CellContent == Content {
 
-    weak var delegate: CollectionViewContainerDelegate?
+    weak var delegate: Delegate?
 
     enum Section {
         case none
