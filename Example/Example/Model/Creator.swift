@@ -37,13 +37,11 @@ class Creator: CollectionViewStreamingCollection {
             defer { self.run() }
 
             if Bool.random() {
-                print("Add...")
                 let item = Item()
                 let index = Int.random(in: 0..<items.count + 1)
                 items.insert(Item(), at: index)
                 collectionView?.insertItem(item, atIndex: index, items: Array(items))
             } else {
-                print("Remove...")
                 guard !items.isEmpty else {
                     return
                 }
