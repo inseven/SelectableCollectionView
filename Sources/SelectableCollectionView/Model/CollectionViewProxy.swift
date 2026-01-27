@@ -20,6 +20,8 @@
 
 import SwiftUI
 
+// TODO: Does Element need to be identifiable??
+
 /**
  * Proxy protocol for managing a collection view.
  *
@@ -35,6 +37,6 @@ public protocol CollectionViewProxy<Element> {
     func setItems(_ items: [Element])
     func insertItem(_ item: Element, atIndex index: Int, items: [Element])
     func updateItem(_ item: Element, atIndex index: Int, items: [Element])
-    func removeItemWithIdentifier(_ identifier: Element.ID, atIndex index: Int, items: [Element])
+    func removeItem(_ item: Element, atIndex index: Int, items: [Element])
 
 }

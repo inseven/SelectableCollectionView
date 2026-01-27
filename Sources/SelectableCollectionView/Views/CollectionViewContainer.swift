@@ -285,10 +285,14 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
     }
 
     public func updateItem(_ item: Element, atIndex index: Int, items: [Element]) {
-
+        // TODO: Implement me!
     }
 
-    public func removeItemWithIdentifier(_ identifier: Element.ID, atIndex index: Int, items: [Element]) {
+    public func removeItem(_ item: Element, atIndex index: Int, items: [Element]) {
+        dispatchPrecondition(condition: .onQueue(.main))
+        var snapshot = dataSource.snapshot()
+        snapshot.deleteItems([item])
+        dataSource.apply(snapshot, animatingDifferences: true)
     }
 
 }
