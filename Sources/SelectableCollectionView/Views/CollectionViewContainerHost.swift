@@ -43,8 +43,7 @@ public struct CollectionViewContainerHost<E, Content: View>
         }
 
         public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
-                                            menuItemsForElements elements: Set<Element>) -> [MenuItem] {
-            let ids = Set(elements.map { $0.id })
+                                            menuItemsForIds ids: Set<Element.ID>) -> [MenuItem] {
             return parent.contextMenu(ids)
         }
 
@@ -54,17 +53,13 @@ public struct CollectionViewContainerHost<E, Content: View>
         }
 
         public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
-                                            didUpdateSelection selection: Set<Element>) {
-            let ids = Set(selection.map { $0.id })
-            DispatchQueue.main.async { [weak self] in  // TODO: Do this internally?
-                self?.parent.selection.wrappedValue = ids  // TODO: FIX THIS CALLBACK!
-            }
+                                            didUpdateSelection selection: Set<Element.ID>) {
+            parent.selection.wrappedValue = selection
         }
 
         public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
-                                            didDoubleClickSelection selection: Set<Element>) {
-            let ids = Set(selection.map { $0.id })
-            parent.primaryAction(ids)
+                                            didDoubleClickSelection selection: Set<Element.ID>) {
+            parent.primaryAction(selection)
         }
 
         public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,

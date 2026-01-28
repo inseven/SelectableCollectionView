@@ -59,7 +59,7 @@ class Creator: CollectionViewStreamingCollection {
                 }
                 let index = Int.random(in: 0..<items.count)
                 let item = items.remove(at: index)
-                collectionView?.removeItem(item, atIndex: index, items: Array(items))
+                collectionView?.removeItemWithId(item.id, atIndex: index, items: Array(items))
             case .move:
                 guard !items.isEmpty else {
                     return

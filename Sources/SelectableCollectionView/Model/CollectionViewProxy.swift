@@ -38,7 +38,25 @@ public protocol CollectionViewProxy<Element> {
     func setItems(_ items: [Element])
     func insertItem(_ item: Element, atIndex index: Int, items: [Element])
     func updateItem(_ item: Element, atIndex index: Int, items: [Element])
-    func removeItem(_ item: Element, atIndex index: Int, items: [Element])
+//    func removeItem(_ item: Element, atIndex index: Int, items: [Element])
+    func removeItemWithId(_ id: Element.ID, atIndex: Int, items: [Element])
+
+    /**
+     * Remove the item with identifier `identifier` from the collection view.
+     *
+     * Items are referenced by identifier
+     */
+//    func removeItemWithIdentifier(_ identifier: Element.ID, atIndex index: Int, items: [Element])
+    // TODO: We need to double check how equality works for these elements.
+
+    // So the interesting thing here is that Folders _only_ inserts the IDs. So I think the correct answer is to make
+    // the table view _only_ use IDs. This is complex though. Right now the current implementation is broken. Which
+    // might explain the over-animation in builds when things change since we're replacing everything in the table view
+    // rather than simply reloading the cell contents.
+    // If I explicitly use identifiable and only insert the ids into the table view, then that probably forces clients
+    // to use it more correctly as it'll force them to think about identifiers which are unique across the iteration of
+    // the items. But it requires us to cache the items. I guess we're effectively already doing that already. Though
+    // building that list might suck---perhaps it's necessary to do it on a separate serial queue?
 
     /**
      * Moves the item, `item`, located at `fromIndex` before the item located to `toIndex`. If `toIndex` is equal to the

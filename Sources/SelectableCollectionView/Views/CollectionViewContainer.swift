@@ -26,21 +26,19 @@ import SwiftUI
 
 import SelectableCollectionViewMacResources
 
-// TODO: Rename element to ID to avoid confusion?
-
 public protocol CollectionViewContainerDelegate: NSObject {
 
     associatedtype Element: Hashable & Identifiable
     associatedtype CellContent: View
 
     func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, CellContent, Self>,
-                                 menuItemsForElements elements: Set<Element>) -> [MenuItem]
+                                 menuItemsForIds ids: Set<Element.ID>) -> [MenuItem]
     func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, CellContent, Self>,
                                  contentForElement element: Element) -> CellContent?
     func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, CellContent, Self>,
-                                 didUpdateSelection selection: Set<Element>)
+                                 didUpdateSelection selection: Set<Element.ID>)
     func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, CellContent, Self>,
-                                 didDoubleClickSelection selection: Set<Element>)
+                                 didDoubleClickSelection selection: Set<Element.ID>)
 
     func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, CellContent, Self>,
                                  keyDown event: NSEvent) -> Bool
@@ -48,7 +46,12 @@ public protocol CollectionViewContainerDelegate: NSObject {
                                  keyUp event: NSEvent) -> Bool
 }
 
-public class CollectionViewContainer<Element: Hashable, Content: View, Delegate: CollectionViewContainerDelegate>
+// TODO: Can I hoist the id -> element mapping out of the CollectionViewContainer. Does it make sense to??
+// It could probably be injected, though it would require the CollectionViewProxy to not be the collection view, but
+// instead a tracking proxy if necessary.
+
+// TODO: Consider whether `Element` needs to be AnyClass?
+public class CollectionViewContainer<Element, Content: View, Delegate: CollectionViewContainerDelegate>
 : NSView,
   NSCollectionViewDelegate,
   CollectionViewInteractionDelegate,
@@ -62,14 +65,16 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
         case none
     }
 
-    typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Element>
-    typealias DataSource = NSCollectionViewDiffableDataSource<Section, Element>
+    typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Element.ID>
+    typealias DataSource = NSCollectionViewDiffableDataSource<Section, Element.ID>
     typealias Cell = ShortcutItemView
 
     private let scrollView: CustomScrollView
     private let collectionView: InteractiveCollectionView
     private var dataSource: DataSource! = nil
     private var cancellables: Set<AnyCancellable> = []
+
+    private var items: [Element.ID: Element] = [:]  // TODO: Ensure this is threadsafe.
 
     var provider: ((Element) -> Content?)? = nil
 
@@ -86,8 +91,10 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
         collectionView.collectionViewLayout = layout
         super.init(frame: .zero)
 
-        dataSource = DataSource(collectionView: collectionView) { collectionView, indexPath, item in
-            guard let view = collectionView.makeItem(withIdentifier: ShortcutItemView.identifier, for: indexPath) as? ShortcutItemView,
+        dataSource = DataSource(collectionView: collectionView) { [weak self] collectionView, indexPath, id in
+            guard let self,
+                  let item = self.items[id],
+                  let view = collectionView.makeItem(withIdentifier: ShortcutItemView.identifier, for: indexPath) as? ShortcutItemView,
                   let content = self.delegate?.collectionViewContainer(self, contentForElement: item)
             else {
                 return ShortcutItemView()
@@ -151,28 +158,28 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
         }
     }
 
-    @MainActor private func update(_ items: [Element], selection: Set<Element>) {
-
-        // Update the items.
-        var snapshot = Snapshot()
-        snapshot.appendSections([.none])
-        snapshot.appendItems(items, toSection: Section.none)
-        dataSource.apply(snapshot, animatingDifferences: true)
-
-        updateVisibleItems()
-
-        // Update the selection
-        let indexPaths = selection.compactMap { element in
-            return dataSource?.indexPath(for: element)
-        }
-
-        // Updating the selection at the same time as the items seems to cause some form of loop or deadlock, so we
-        // break that by dispatching back to the main queue.
-        DispatchQueue.main.async {
-            self.collectionView.selectionIndexPaths = Set(indexPaths)
-        }
-
-    }
+//    @MainActor private func update(_ items: [Element], selection: Set<Element>) {
+//
+//        // Update the items.
+//        var snapshot = Snapshot()
+//        snapshot.appendSections([.none])
+//        snapshot.appendItems(items.map({ $0.id }), toSection: Section.none)
+//        dataSource.apply(snapshot, animatingDifferences: true)
+//
+//        updateVisibleItems()
+//
+//        // Update the selection
+//        let indexPaths = selection.compactMap { element in
+//            return dataSource?.indexPath(for: element)
+//        }
+//
+//        // Updating the selection at the same time as the items seems to cause some form of loop or deadlock, so we
+//        // break that by dispatching back to the main queue.
+//        DispatchQueue.main.async {
+//            self.collectionView.selectionIndexPaths = Set(indexPaths)
+//        }
+//
+//    }
 
     @MainActor func updateLayout(_ layout: NSCollectionViewLayout) {
         collectionView.animator().collectionViewLayout = layout
@@ -211,8 +218,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
 
     func collectionView(_ collectionView : InteractiveCollectionView,
                         contextMenuForSelection _: Set<IndexPath>) -> NSMenu? {
-
-        guard let menuItems = delegate?.collectionViewContainer(self, menuItemsForElements: selectedElements),
+        guard let menuItems = delegate?.collectionViewContainer(self, menuItemsForIds: selectedIds),
               !menuItems.isEmpty
         else {
             return nil
@@ -220,14 +226,19 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
         return contextMenu(for: menuItems)
     }
 
-    var selectedElements: Set<Element> {
-        return Set(collectionView.selectionIndexPaths.compactMap { dataSource?.itemIdentifier(for: $0) })
+    var selectedIds: Set<Element.ID> {
+        // TODO: We shouldn't need to map to `Element` for this, but there's a bunch of knock-on effects that need work.
+        return Set(collectionView
+            .selectionIndexPaths
+            .compactMap { dataSource?.itemIdentifier(for: $0) }
+            /*.compactMap({ items[$0] })*/)
     }
 
     func updateSelection() {
         // We dispatch this back onto the main loop to ensure we're not updating state in a SwiftUI render.
-        DispatchQueue.main.async {
-            self.delegate?.collectionViewContainer(self, didUpdateSelection: self.selectedElements)
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.delegate?.collectionViewContainer(self, didUpdateSelection: selectedIds)
         }
     }
 
@@ -236,7 +247,8 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
     }
 
     func collectionView(_ collectionView: InteractiveCollectionView, didDoubleClickSelection selection: Set<IndexPath>) {
-        delegate?.collectionViewContainer(self, didDoubleClickSelection: selectedElements)
+        // TODO: Do I need to dispatch this?
+        delegate?.collectionViewContainer(self, didDoubleClickSelection: selectedIds)
     }
 
     func collectionView(_ collectionView: InteractiveCollectionView, didUpdateFocus isFirstResponder: Bool) {
@@ -272,10 +284,15 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
     public func setItems(_ items: [Element]) {
         dispatchPrecondition(condition: .onQueue(.main))
 
+        // Cache the items.
+        for item in items {
+            self.items[item.id] = item
+        }
+
+        // Update the collection view.
         var snapshot = Snapshot()
         snapshot.appendSections([.none])
-        snapshot.appendItems(items, toSection: Section.none)
-
+        snapshot.appendItems(items.map({ $0.id }), toSection: Section.none)
         dataSource.apply(snapshot, animatingDifferences: true)
 
         // TODO: Update the selection?
@@ -284,44 +301,62 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
     public func insertItem(_ item: Element, atIndex index: Int, items: [Element]) {
         dispatchPrecondition(condition: .onQueue(.main))
 
+        // Cache the item.
+        self.items[item.id] = item
+
+        // Update the collection view.
         var snapshot = dataSource.snapshot()
         if snapshot.numberOfSections < 1 {
             snapshot.appendSections([.none])
         }
         if index < snapshot.itemIdentifiers.count {
             let beforeItem = snapshot.itemIdentifiers[index]
-            snapshot.insertItems([item], beforeItem: beforeItem)
+            snapshot.insertItems([item.id], beforeItem: beforeItem)
         } else if index == snapshot.itemIdentifiers.count {
-            snapshot.appendItems([item])
+            snapshot.appendItems([item.id])
         } else {
             fatalError("Attempting to insert an item at an index beyond the end of the list.")
         }
-
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
     public func updateItem(_ item: Element, atIndex index: Int, items: [Element]) {
         dispatchPrecondition(condition: .onQueue(.main))
+
+        // Update the cache for the item (in case these are structs not objects).
+        self.items[item.id] = item
+
+        // Reload the collection view items.
         var snapshot = dataSource.snapshot()
-        snapshot.reloadItems([item])
+        snapshot.reloadItems([item.id])
         dataSource.apply(Snapshot(), animatingDifferences: true)
     }
 
-    public func removeItem(_ item: Element, atIndex index: Int, items: [Element]) {
+    public func removeItemWithId(_ id: Element.ID, atIndex: Int, items: [Element]) {
         dispatchPrecondition(condition: .onQueue(.main))
+
+        // Remove the identifier from the collection view.
         var snapshot = dataSource.snapshot()
-        guard snapshot.itemIdentifiers.contains(item) else {
+        guard snapshot.itemIdentifiers.contains(id) else {
             fatalError("Attempted to remove item not in list.")
         }
-        snapshot.deleteItems([item])
+        snapshot.deleteItems([id])
         dataSource.apply(snapshot, animatingDifferences: true)
+
+        // Remove the item from the cache.
+        self.items.removeValue(forKey: id)
     }
 
     // Apple's API always assumes the to index is the place to move _before_.
     public func moveItem(_ item: Element, toIndex index: Int, items: [Element]) {
         dispatchPrecondition(condition: .onQueue(.main))
+
+        // Since this is just a move, we shouldn't need to update the cache.
+
+        // Remove the item from the collection view.
+
         var snapshot = dataSource.snapshot()
-        guard let fromIndex = snapshot.indexOfItem(item) else {
+        guard let fromIndex = snapshot.indexOfItem(item.id) else {
             fatalError("Attempted to move item not in list.")
         }
         if fromIndex == index || fromIndex + 1 == index {  // TODO: Make this a guard.
@@ -337,9 +372,9 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
         // Unfortunately we have to do a little work to map the API here as NSDiffableDataSourceSnapshot doesn't
         // provide a single API that can perform all the move operations we need.
         if index == snapshot.itemIdentifiers.count {
-            snapshot.moveItem(item, afterItem: snapshot.itemIdentifiers.last!)
+            snapshot.moveItem(item.id, afterItem: snapshot.itemIdentifiers.last!)
         } else {
-            snapshot.moveItem(item, beforeItem: snapshot.itemIdentifiers[index])
+            snapshot.moveItem(item.id, beforeItem: snapshot.itemIdentifiers[index])
         }
 
         dataSource.apply(snapshot, animatingDifferences: true)
