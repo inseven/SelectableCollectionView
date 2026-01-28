@@ -28,7 +28,7 @@ import SelectableCollectionViewMacResources
 
 public protocol CollectionViewContainerDelegate: NSObject {
 
-    associatedtype Element: Hashable & Identifiable
+    associatedtype Element: Identifiable
     associatedtype CellContent: View
 
     func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, CellContent, Self>,
@@ -51,7 +51,7 @@ public protocol CollectionViewContainerDelegate: NSObject {
 // instead a tracking proxy if necessary.
 
 // TODO: Consider whether `Element` needs to be AnyClass?
-public class CollectionViewContainer<Element, Content: View, Delegate: CollectionViewContainerDelegate>
+public class CollectionViewContainer<Element: Identifiable, Content: View, Delegate: CollectionViewContainerDelegate>
 : NSView,
   NSCollectionViewDelegate,
   CollectionViewInteractionDelegate,
@@ -75,8 +75,6 @@ public class CollectionViewContainer<Element, Content: View, Delegate: Collectio
     private var cancellables: Set<AnyCancellable> = []
 
     private var items: [Element.ID: Element] = [:]  // TODO: Ensure this is threadsafe.
-
-    var provider: ((Element) -> Content?)? = nil
 
     init(layout: NSCollectionViewLayout) {
 
