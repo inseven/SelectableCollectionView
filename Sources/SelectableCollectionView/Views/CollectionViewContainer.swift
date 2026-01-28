@@ -356,7 +356,7 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
         guard let fromIndex = snapshot.indexOfItem(item.id) else {
             fatalError("Attempted to move item not in list.")
         }
-        if fromIndex == index || fromIndex + 1 == index {  // TODO: Make this a guard.
+        guard fromIndex != index && fromIndex + 1 != index else {
             return
         }
         guard fromIndex < snapshot.itemIdentifiers.count else {
