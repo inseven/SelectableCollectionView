@@ -245,7 +245,6 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
     }
 
     func collectionView(_ collectionView: InteractiveCollectionView, didDoubleClickSelection selection: Set<IndexPath>) {
-        // TODO: Do I need to dispatch this?
         delegate?.collectionViewContainer(self, didDoubleClickSelection: selectedIds)
     }
 
