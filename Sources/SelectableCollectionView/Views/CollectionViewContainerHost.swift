@@ -126,12 +126,18 @@ public struct CollectionViewContainerHost<E, Content: View>
 //                let selectedElements = items.filter { selection.wrappedValue.contains($0.id) }
 //        collectionView.update(Array(items), selection: Set(selectedElements))
 
+        // First, ensure the visible items re-evaluate their hosted SwiftUI views.
         collectionView.updateVisibleItems()
 
+        // Next, we manually apply changes to the collection view if our collection doesn't automatically apply updates.
         if !items.supportsIncrementalUpdates {
             items.collectionViewDidConnect(collectionView)
             items.update()
         }
+
+        // And finally, we apply a new layout if necessary.
+        // It actually looks like this might not be safe to do while also applying updates, so it's possible that we
+        // need to somehow gate this operation.
         if context.coordinator.collectionViewLayoutHash != layout.hashValue {
             let collectionViewLayout = layout.makeLayout()
             collectionView.updateLayout(collectionViewLayout)
