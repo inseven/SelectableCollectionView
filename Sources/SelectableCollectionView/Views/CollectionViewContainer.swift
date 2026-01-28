@@ -137,7 +137,7 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
     }
 
     // TODO: Take in a set of items to compare with and we can maybe do an intersection?
-    private func updateVisibleItems() {
+    func updateVisibleItems() {
         // Update the hosted item content.
         for item in collectionView.visibleItems() {
             guard let item = item as? ShortcutItemView,
@@ -334,24 +334,16 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
             fatalError("Attempted to move item to an index beyond the end of the list.")
         }
 
-        // We have to be incredibly careful of the ordering here as the destination index is dependent on whether the
-        // source locaiton is after or before.
-
+        // Unfortunately we have to do a little work to map the API here as NSDiffableDataSourceSnapshot doesn't
+        // provide a single API that can perform all the move operations we need.
         if index == snapshot.itemIdentifiers.count {
             snapshot.moveItem(item, afterItem: snapshot.itemIdentifiers.last!)
         } else {
             snapshot.moveItem(item, beforeItem: snapshot.itemIdentifiers[index])
         }
 
-//        if toIndex == 0 {
-//            snapshot.moveItem(item, beforeItem: snapshot.itemIdentifiers[toIndex])
-//        } else {
-//            snapshot.moveItem(item, afterItem: snapshot.itemIdentifiers[toIndex - 1])
-//        }
         dataSource.apply(snapshot, animatingDifferences: true)
     }
-
-    // TODO: Support moves.
 
 }
 

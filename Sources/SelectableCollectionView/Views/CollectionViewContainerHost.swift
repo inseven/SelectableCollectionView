@@ -125,6 +125,9 @@ public struct CollectionViewContainerHost<E, Content: View>
         // TODO: There needs to be a path for preparing the selection. The filtering should be done by the collection view though.
 //                let selectedElements = items.filter { selection.wrappedValue.contains($0.id) }
 //        collectionView.update(Array(items), selection: Set(selectedElements))
+
+        collectionView.updateVisibleItems()
+
         if !items.supportsIncrementalUpdates {
             items.collectionViewDidConnect(collectionView)
             items.update()

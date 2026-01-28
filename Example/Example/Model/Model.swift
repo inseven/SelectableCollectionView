@@ -32,7 +32,6 @@ class Model: ObservableObject, @unchecked Sendable {
     @Published var isPainted = false
     @Published var layoutMode: LayoutMode = .column
     @Published var subtitle: String = ""
-    @Published var isStreaming: Bool = true
 
     private var cancellables: Set<AnyCancellable> = []
     private var backgroundQueue = DispatchQueue(label: "backgroundQueue")

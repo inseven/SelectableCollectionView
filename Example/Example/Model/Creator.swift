@@ -25,6 +25,7 @@ import SelectableCollectionView
 @Observable
 class Creator: CollectionViewStreamingCollection {
 
+    // TODO: Exercise the update code!
     enum Operation: CaseIterable {
         case add
         case remove
@@ -37,6 +38,7 @@ class Creator: CollectionViewStreamingCollection {
 
     private var collectionView: (any CollectionViewProxy<Item>)? = nil
     public var items: [Item] = []
+    private var isActive: Bool = true
 
     func run() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in

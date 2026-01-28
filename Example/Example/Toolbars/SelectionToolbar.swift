@@ -20,50 +20,60 @@
 
 import SwiftUI
 
-struct SelectionToolbar: CustomizableToolbarContent {
+struct SelectionToolbar: ToolbarContent {
 
     @EnvironmentObject var model: Model
 
-    var body: some CustomizableToolbarContent {
+    var body: some ToolbarContent {
 
-        ToolbarItem(id: "clear") {
-            Button {
-                model.clearSelection()
-            } label: {
-                Label("Clear Selection", systemImage: "xmark")
-            }
-            .help("Clear selection")
-            .disabled(model.selection.isEmpty)
-        }
+        ToolbarItem {
+            Menu("Title", systemImage: "ellipsis.circle") {
+                Button {
+                    model.clearSelection()
+                } label: {
+                    Label("Clear Selection", systemImage: "xmark")
+                }
+                .help("Clear selection")
+                .disabled(model.selection.isEmpty)
 
-        ToolbarItem(id: "random") {
-            Button {
-                model.selectRandomItem()
-            } label: {
-                Label("Random Selection", systemImage: "arrow.2.squarepath")
-            }
-            .help("Select random item")
-        }
+                Button {
+                    model.selectRandomItem()
+                } label: {
+                    Label("Select Random Item", systemImage: "shuffle")
+                }
 
-        ToolbarItem(id: "open") {
-            Button {
-                model.open(ids: model.selection)
-            } label: {
-                Label("Open", systemImage: "globe")
-            }
-            .keyboardShortcut(.return, modifiers: [])
-            .help("Open selected items in default web browser")
-        }
+                Divider()
 
-        ToolbarItem(id: "delete") {
-            Button {
-                model.delete(ids: model.selection)
-            } label: {
-                Label("Delete", systemImage: "trash")
+                Button {
+                    model.open(ids: model.selection)
+                } label: {
+                    Label("Open", systemImage: "globe")
+                }
+
+                Divider()
+
+                Button {
+                    model.delete(ids: model.selection)
+                } label: {
+                    Label("Delete \(model.selection.count) Items", systemImage: "trash")
+                }
+                .disabled(model.selection.isEmpty)
+
+                Divider()
+
+                Button {
+                    model.items.append(Item())
+                } label: {
+                    Label("Add 1 Item", systemImage: "plus.square")
+                }
+
+                Button {
+                    model.addManyItems()
+                } label: {
+                    Label("Add 1000 Items", systemImage: "plus.square.on.square")
+                }
+
             }
-            .help("Delete selected items")
-            .keyboardShortcut(.delete)
-            .disabled(model.selection.isEmpty)
         }
 
     }

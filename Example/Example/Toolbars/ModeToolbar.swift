@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 Jason Morley
+// Copyright (c) 2022-2026 Jason Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,30 +20,20 @@
 
 import SwiftUI
 
-struct ItemsToolbar: CustomizableToolbarContent {
+struct ModeToolbar: CustomizableToolbarContent {
 
-    @EnvironmentObject var model: Model
+    @Binding var isStreaming: Bool
 
     var body: some CustomizableToolbarContent {
-
-        ToolbarItem(id: "add") {
-            Button {
-                model.items.append(Item())
-            } label: {
-                Label("Add", systemImage: "plus")
+        ToolbarItem(id: "streaming") {
+            Picker("Mode", selection: $isStreaming) {
+                Label("Streaming", systemImage: "hare")
+                    .tag(true)
+                Label("Static", systemImage: "tortoise")
+                    .tag(false)
             }
-            .help("Add item")
+            .pickerStyle(.inline)
         }
-
-        ToolbarItem(id: "add-many") {
-            Button {
-                model.addManyItems()
-            } label: {
-                Label("Add Many", systemImage: "infinity")
-            }
-            .help("Add many items (1000)")
-        }
-
     }
 
 }
