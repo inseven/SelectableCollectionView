@@ -23,6 +23,7 @@ import SwiftUI
 #if os(macOS)
 
 // TODO: Rename to wrapper????
+// TODO: Document the main thread guarantee for cell creation / element access.
 public struct SelectableCollectionView<Element,
                                        Content: View>: View where Element: Identifiable,
                                                                   Element: Hashable,

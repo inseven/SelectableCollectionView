@@ -25,7 +25,6 @@ import SelectableCollectionView
 @Observable
 class Creator: CollectionViewStreamingCollection {
 
-    // TODO: Exercise the update code!
     enum Operation: CaseIterable {
         case add
         case remove

@@ -74,7 +74,7 @@ public struct CollectionViewContainerHost<E, Content: View>
 
     }
 
-    let items: AnyCollectionViewManagedCollection<E>
+    let collection: AnyCollectionViewManagedCollection<E>
     let selection: Binding<Set<E.ID>>
     let layout: any Layoutable
     let itemContent: (E) -> Content
@@ -83,7 +83,7 @@ public struct CollectionViewContainerHost<E, Content: View>
     let keyDown: (NSEvent) -> Bool
     let keyUp: (NSEvent) -> Bool
 
-    init(_ items: AnyCollectionViewManagedCollection<E>,
+    init(_ collection: AnyCollectionViewManagedCollection<E>,
          selection: Binding<Set<E.ID>>,
          layout: any Layoutable,
          @ViewBuilder itemContent: @escaping (E) -> Content,
@@ -91,7 +91,7 @@ public struct CollectionViewContainerHost<E, Content: View>
          primaryAction: @escaping (Set<E.ID>) -> Void,
          keyDown: @escaping (NSEvent) -> Bool = { _ in return false },
          keyUp: @escaping (NSEvent) -> Bool = { _ in return false }) {
-        self.items = items // TODO: Rename to collection??
+        self.collection = collection
         self.selection = selection
         self.layout = layout
         self.itemContent = itemContent
@@ -108,9 +108,9 @@ public struct CollectionViewContainerHost<E, Content: View>
     public func makeNSView(context: Context) -> CollectionViewContainer<E, Content, Coordinator> {
         let collectionView = CollectionViewContainer<E, Content, Coordinator>(layout: layout.makeLayout())
         collectionView.delegate = context.coordinator
-        items.collectionViewDidConnect(collectionView)
-        if !items.supportsIncrementalUpdates {
-            items.update()
+        collection.collectionViewDidConnect(collectionView)
+        if !collection.supportsIncrementalUpdates {
+            collection.update()
         }
         return collectionView
     }
@@ -125,9 +125,9 @@ public struct CollectionViewContainerHost<E, Content: View>
         collectionView.updateVisibleItems()
 
         // Next, we manually apply changes to the collection view if our collection doesn't automatically apply updates.
-        if !items.supportsIncrementalUpdates {
-            items.collectionViewDidConnect(collectionView)
-            items.update()
+        if !collection.supportsIncrementalUpdates {
+            collection.collectionViewDidConnect(collectionView)
+            collection.update()
         }
 
         // And finally, we apply a new layout if necessary.
