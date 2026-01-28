@@ -225,11 +225,9 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
     }
 
     var selectedIds: Set<Element.ID> {
-        // TODO: We shouldn't need to map to `Element` for this, but there's a bunch of knock-on effects that need work.
         return Set(collectionView
             .selectionIndexPaths
-            .compactMap { dataSource?.itemIdentifier(for: $0) }
-            /*.compactMap({ items[$0] })*/)
+            .compactMap { dataSource?.itemIdentifier(for: $0) })
     }
 
     func updateSelection() {
