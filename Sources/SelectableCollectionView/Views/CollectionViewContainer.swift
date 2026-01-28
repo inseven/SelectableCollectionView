@@ -327,7 +327,7 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
         // Reload the collection view items.
         var snapshot = dataSource.snapshot()
         snapshot.reloadItems([item.id])
-        dataSource.apply(Snapshot(), animatingDifferences: true)
+        dataSource.apply(snapshot, animatingDifferences: true)
     }
 
     public func removeItemWithId(_ id: Element.ID, atIndex: Int, items: [Element]) {

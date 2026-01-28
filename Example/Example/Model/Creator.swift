@@ -30,6 +30,7 @@ class Creator: CollectionViewStreamingCollection {
         case add
         case remove
         case move
+        case update
 
         static func random() -> Self {
             return allCases.randomElement()!
@@ -69,6 +70,15 @@ class Creator: CollectionViewStreamingCollection {
                 let item = items[from]
                 items.move(fromOffsets: [from], toOffset: to)
                 collectionView?.moveItem(item, toIndex: to, items: Array(items))
+            case .update:
+                guard !items.isEmpty else {
+                    return
+                }
+                let index = Int.random(in: 0..<items.count)
+                var item = items[index]
+                item.count += 1
+                items[index] = item  // We currently need to replace this because it's a struct.
+                collectionView?.updateItem(item, atIndex: index, items: items)
             }
 
         }
