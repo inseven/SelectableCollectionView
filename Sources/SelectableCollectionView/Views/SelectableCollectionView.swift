@@ -22,8 +22,6 @@ import SwiftUI
 
 #if os(macOS)
 
-// TODO: Rename to wrapper????
-// TODO: Document the main thread guarantee for cell creation / element access.
 public struct SelectableCollectionView<Element,
                                        Content: View>: View where Element: Identifiable,
                                                                   Element: Hashable,
@@ -39,6 +37,9 @@ public struct SelectableCollectionView<Element,
     let keyDown: (NSEvent) -> Bool
     let keyUp: (NSEvent) -> Bool
 
+    /**
+     * Content and context menu builder blocks are guaranteed to be called on the main thread.
+     */
     public init(_ items: any RandomAccessCollection<Element>,
                 selection: Binding<Set<Element.ID>>,
                 columns: [GridItem],
@@ -58,6 +59,9 @@ public struct SelectableCollectionView<Element,
         self.keyUp = keyUp
     }
 
+    /**
+     * Content and context menu builder blocks are guaranteed to be called on the main thread.
+     */
     public init(_ items: any RandomAccessCollection<Element>,
                 selection: Binding<Set<Element.ID>>,
                 layout: any Layoutable,
@@ -76,7 +80,9 @@ public struct SelectableCollectionView<Element,
         self.keyUp = keyUp
     }
 
-    // Streaming Collection?
+    /**
+     * Content and context menu builder blocks are guaranteed to be called on the main thread.
+     */
     public init(_ collection: any CollectionViewStreamingCollection<Element>,
                 selection: Binding<Set<Element.ID>>,
                 layout: any Layoutable,
