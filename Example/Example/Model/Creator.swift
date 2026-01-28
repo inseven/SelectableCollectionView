@@ -22,33 +22,53 @@ import Combine
 import SwiftUI
 import SelectableCollectionView
 
-// TODO: Test removal.
-// TODO: Make this a model so we can reuse it in other SwiftUI; good performance test too.
+@Observable
 class Creator: CollectionViewStreamingCollection {
 
+    enum Operation: CaseIterable {
+        case add
+        case remove
+        case move
+
+        static func random() -> Self {
+            return allCases.randomElement()!
+        }
+    }
+
     private var collectionView: (any CollectionViewProxy<Item>)? = nil
-    private var items: [Item] = []
+    public var items: [Item] = []
 
     func run() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.10) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             guard let self else {
                 return
             }
             defer { self.run() }
 
-            if Bool.random() {
+            switch Operation.random() {
+            case .add:
                 let item = Item()
                 let index = Int.random(in: 0..<items.count + 1)
-                items.insert(Item(), at: index)
+                items.insert(item, at: index)
                 collectionView?.insertItem(item, atIndex: index, items: Array(items))
-            } else {
+            case .remove:
                 guard !items.isEmpty else {
                     return
                 }
                 let index = Int.random(in: 0..<items.count)
                 let item = items.remove(at: index)
                 collectionView?.removeItem(item, atIndex: index, items: Array(items))
+            case .move:
+                guard !items.isEmpty else {
+                    return
+                }
+                let from = Int.random(in: 0..<items.count)
+                let to = Int.random(in: 0...items.count)  // Apple's move implementation _always_ treats it as inserting before this index.
+                let item = items[from]
+                items.move(fromOffsets: [from], toOffset: to)
+                collectionView?.moveItem(item, toIndex: to, items: Array(items))
             }
+
         }
     }
 

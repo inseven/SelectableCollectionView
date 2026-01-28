@@ -136,14 +136,8 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
         fatalError("init(coder:) has not been implemented")
     }
 
-    @MainActor private func update(_ items: [Element], selection: Set<Element>) {
-
-        // Update the items.
-        var snapshot = Snapshot()
-        snapshot.appendSections([.none])
-        snapshot.appendItems(items, toSection: Section.none)
-        dataSource!.apply(snapshot, animatingDifferences: true)
-
+    // TODO: Take in a set of items to compare with and we can maybe do an intersection?
+    private func updateVisibleItems() {
         // Update the hosted item content.
         for item in collectionView.visibleItems() {
             guard let item = item as? ShortcutItemView,
@@ -155,6 +149,17 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
                            parentHasFocus: collectionView.isFirstResponder,
                            parentIsKey: collectionView.window?.isKeyWindow ?? false)
         }
+    }
+
+    @MainActor private func update(_ items: [Element], selection: Set<Element>) {
+
+        // Update the items.
+        var snapshot = Snapshot()
+        snapshot.appendSections([.none])
+        snapshot.appendItems(items, toSection: Section.none)
+        dataSource.apply(snapshot, animatingDifferences: true)
+
+        updateVisibleItems()
 
         // Update the selection
         let indexPaths = selection.compactMap { element in
@@ -184,10 +189,13 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
         let menu = NSMenu()
         menu.items = menuItems.map { menuItem in
             switch menuItem.itemType {
-            case .item(let title, _, _, let action):
+            case .item(let title, let systemImage, _, let action):
                 let menuItem = NSMenuItem(title: title,
                                           action: menuItem.isDisabled ? nil : #selector(menuItem(sender:)),
                                           keyEquivalent: "")
+                if let systemImage {
+                    menuItem.image = NSImage(systemSymbolName: systemImage, accessibilityDescription: nil)
+                }
                 menuItem.representedObject = action
                 return menuItem
             case .separator:
@@ -217,7 +225,10 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
     }
 
     func updateSelection() {
-        delegate?.collectionViewContainer(self, didUpdateSelection: selectedElements)
+        // We dispatch this back onto the main loop to ensure we're not updating state in a SwiftUI render.
+        DispatchQueue.main.async {
+            self.delegate?.collectionViewContainer(self, didUpdateSelection: self.selectedElements)
+        }
     }
 
     func collectionView(_ collectionView: InteractiveCollectionView, didUpdateSelection selection: Set<IndexPath>) {
@@ -260,40 +271,87 @@ public class CollectionViewContainer<Element: Hashable, Content: View, Delegate:
 
     public func setItems(_ items: [Element]) {
         dispatchPrecondition(condition: .onQueue(.main))
-        self.update(items, selection: [])
+
+        var snapshot = Snapshot()
+        snapshot.appendSections([.none])
+        snapshot.appendItems(items, toSection: Section.none)
+
+        dataSource.apply(snapshot, animatingDifferences: true)
+
+        // TODO: Update the selection?
     }
 
     public func insertItem(_ item: Element, atIndex index: Int, items: [Element]) {
         dispatchPrecondition(condition: .onQueue(.main))
 
         var snapshot = dataSource.snapshot()
-
         if snapshot.numberOfSections < 1 {
             snapshot.appendSections([.none])
         }
-
         if index < snapshot.itemIdentifiers.count {
             let beforeItem = snapshot.itemIdentifiers[index]
             snapshot.insertItems([item], beforeItem: beforeItem)
         } else if index == snapshot.itemIdentifiers.count {
             snapshot.appendItems([item])
         } else {
-            fatalError("Attempting to insert an item beyond the end of the list.")
+            fatalError("Attempting to insert an item at an index beyond the end of the list.")
         }
 
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
     public func updateItem(_ item: Element, atIndex index: Int, items: [Element]) {
-        // TODO: Implement me!
+        dispatchPrecondition(condition: .onQueue(.main))
+        var snapshot = dataSource.snapshot()
+        snapshot.reloadItems([item])
+        dataSource.apply(Snapshot(), animatingDifferences: true)
     }
 
     public func removeItem(_ item: Element, atIndex index: Int, items: [Element]) {
         dispatchPrecondition(condition: .onQueue(.main))
         var snapshot = dataSource.snapshot()
+        guard snapshot.itemIdentifiers.contains(item) else {
+            fatalError("Attempted to remove item not in list.")
+        }
         snapshot.deleteItems([item])
         dataSource.apply(snapshot, animatingDifferences: true)
     }
+
+    // Apple's API always assumes the to index is the place to move _before_.
+    public func moveItem(_ item: Element, toIndex index: Int, items: [Element]) {
+        dispatchPrecondition(condition: .onQueue(.main))
+        var snapshot = dataSource.snapshot()
+        guard let fromIndex = snapshot.indexOfItem(item) else {
+            fatalError("Attempted to move item not in list.")
+        }
+        if fromIndex == index || fromIndex + 1 == index {  // TODO: Make this a guard.
+            return
+        }
+        guard fromIndex < snapshot.itemIdentifiers.count else {
+            fatalError("Attempted to move item from an index beyond the end of the list.")
+        }
+        guard index <= snapshot.itemIdentifiers.count else {
+            fatalError("Attempted to move item to an index beyond the end of the list.")
+        }
+
+        // We have to be incredibly careful of the ordering here as the destination index is dependent on whether the
+        // source locaiton is after or before.
+
+        if index == snapshot.itemIdentifiers.count {
+            snapshot.moveItem(item, afterItem: snapshot.itemIdentifiers.last!)
+        } else {
+            snapshot.moveItem(item, beforeItem: snapshot.itemIdentifiers[index])
+        }
+
+//        if toIndex == 0 {
+//            snapshot.moveItem(item, beforeItem: snapshot.itemIdentifiers[toIndex])
+//        } else {
+//            snapshot.moveItem(item, afterItem: snapshot.itemIdentifiers[toIndex - 1])
+//        }
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+
+    // TODO: Support moves.
 
 }
 

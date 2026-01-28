@@ -34,9 +34,19 @@ public protocol CollectionViewProxy<Element> {
 
     associatedtype Element: Identifiable & Hashable
 
+    // TODO: Shoud the indicies be unsigned?
     func setItems(_ items: [Element])
     func insertItem(_ item: Element, atIndex index: Int, items: [Element])
     func updateItem(_ item: Element, atIndex index: Int, items: [Element])
     func removeItem(_ item: Element, atIndex index: Int, items: [Element])
+
+    /**
+     * Moves the item, `item`, located at `fromIndex` before the item located to `toIndex`. If `toIndex` is equal to the
+     * number of items, `item` is placed at the end of the list.
+     *
+     * While these semantics might seem strange, they're designed to match the behavoiur of
+     * `MutableCollection.move(fromOffsets:toOffset:)`.
+     */
+    func moveItem(_ item: Element, toIndex index: Int, items: [Element])
 
 }

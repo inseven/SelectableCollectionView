@@ -30,9 +30,10 @@ struct ContentView: View {
 
     @MenuItemBuilder func contextMenu(_ selection: Set<Item.ID>) -> [MenuItem] {
         if !selection.isEmpty {
-            MenuItem("Delete") {
+            MenuItem("Delete", systemImage: "trash") {
                 model.remove(ids: selection)
             }
+            .disabled(model.isStreaming)
         }
     }
 
@@ -61,7 +62,7 @@ struct ContentView: View {
                     }
                 }
             } else {
-                Table(model.filteredItems, selection: $model.selection) {
+                Table(model.isStreaming ? creator.items : model.filteredItems, selection: $model.selection) {
                     TableColumn("") { item in
                         Image(systemName: "circle.fill")
                             .foregroundColor(item.color)
@@ -83,7 +84,7 @@ struct ContentView: View {
             StateToolbar()
             ItemsToolbar()
         }
-        .navigationSubtitle(model.subtitle)
+        .navigationSubtitle(model.isStreaming ? "\(creator.items.count) items" : model.subtitle)
         .onAppear {
             model.run()
         }
