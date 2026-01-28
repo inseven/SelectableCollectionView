@@ -20,8 +20,6 @@
 
 import SwiftUI
 
-// TODO: Does Element need to be identifiable??
-
 /**
  * Proxy protocol for managing a collection view.
  *

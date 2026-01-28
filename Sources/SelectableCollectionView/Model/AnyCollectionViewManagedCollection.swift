@@ -20,7 +20,7 @@
 
 import SwiftUI
 
-class AnyCollectionViewManagedCollection<Element: Identifiable & Hashable>: CollectionViewManagedCollection {
+class AnyCollectionViewManagedCollection<Element: Identifiable>: CollectionViewManagedCollection {
 
     var supportsIncrementalUpdates: Bool {
         return _supportsIncrementalUpdates()

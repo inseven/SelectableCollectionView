@@ -46,11 +46,11 @@ public protocol CollectionViewContainerDelegate: NSObject {
                                  keyUp event: NSEvent) -> Bool
 }
 
-// TODO: Can I hoist the id -> element mapping out of the CollectionViewContainer. Does it make sense to??
-// It could probably be injected, though it would require the CollectionViewProxy to not be the collection view, but
-// instead a tracking proxy if necessary.
-
-// TODO: Consider whether `Element` needs to be AnyClass?
+// TODO: Explore hositing the Element.ID -> Element mapping.
+//       Technically the collection view doesn't need to know about the elements at all as the cell view construction
+//       could be entirely opaque. Changing the collection view to use only `Hashable` ids would make it possible to
+//       write a `SelectableCollectionView` constructor which allows users to manage the mapping themselves, potentially
+//       avoiding additional work and unnecessary memory duplication / copying.
 public class CollectionViewContainer<Element: Identifiable, Content: View, Delegate: CollectionViewContainerDelegate>
 : NSView,
   NSCollectionViewDelegate,
@@ -74,7 +74,7 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
     private var dataSource: DataSource! = nil
     private var cancellables: Set<AnyCancellable> = []
 
-    private var items: [Element.ID: Element] = [:]  // TODO: Ensure this is threadsafe.
+    private var items: [Element.ID: Element] = [:]  // Synchronized on the main thread.
 
     init(layout: NSCollectionViewLayout) {
 

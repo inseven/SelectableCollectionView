@@ -24,7 +24,6 @@ import SwiftUI
 
 public struct SelectableCollectionView<Element,
                                        Content: View>: View where Element: Identifiable,
-                                                                  Element: Hashable,
                                                                   Element.ID: Hashable {
 
     let collection: AnyCollectionViewManagedCollection<Element>

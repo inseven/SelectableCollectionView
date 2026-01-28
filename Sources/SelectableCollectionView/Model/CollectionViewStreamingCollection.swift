@@ -23,7 +23,7 @@ import SwiftUI
 // Always called on the main thread.
 public protocol CollectionViewStreamingCollection<Element>: AnyObject {
 
-    associatedtype Element: Identifiable & Hashable
+    associatedtype Element: Identifiable
 
     func collectionViewDidConnect(_ collectionView: (any CollectionViewProxy<Element>)?)
 

@@ -29,7 +29,7 @@ import SwiftUI
  * It feels like this might be one level of abstraction too far, but, it's internal and allows us to talk to collections
  * through the same API, hopefully localizing the specifics of the mappings.
  */
-class CollectionViewManagedStreamingCollection<Element> : CollectionViewManagedCollection where Element: Identifiable & Hashable {
+class CollectionViewManagedStreamingCollection<Element> : CollectionViewManagedCollection where Element: Identifiable {
 
     var supportsIncrementalUpdates: Bool = true
 

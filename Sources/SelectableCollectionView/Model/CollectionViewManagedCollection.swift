@@ -25,7 +25,7 @@ import SwiftUI
 // Always called on the main thread.
 protocol CollectionViewManagedCollection<Element> {
 
-    associatedtype Element: Identifiable & Hashable
+    associatedtype Element: Identifiable
 
     var supportsIncrementalUpdates: Bool { get }
 

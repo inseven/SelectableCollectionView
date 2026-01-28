@@ -20,7 +20,7 @@
 
 import SwiftUI
 
-class RandomAccessCollectionWrapper<Element: Identifiable & Hashable>: CollectionViewManagedCollection {
+class RandomAccessCollectionWrapper<Element: Identifiable>: CollectionViewManagedCollection {
 
     var supportsIncrementalUpdates: Bool { false }
     let items: any RandomAccessCollection<Element>

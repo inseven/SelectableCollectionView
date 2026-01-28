@@ -20,8 +20,7 @@
 
 import SwiftUI
 
-// TODO: Consider making this a class.
-struct Item: Hashable, Identifiable {
+class Item: Identifiable {
     let id = UUID()
     let color: Color = .random
     var count: Int = 0

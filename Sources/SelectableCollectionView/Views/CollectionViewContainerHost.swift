@@ -24,7 +24,6 @@ import SwiftUI
 
 public struct CollectionViewContainerHost<E, Content: View>
 : NSViewRepresentable where E: Identifiable,
-                            E: Hashable,
                             E.ID: Hashable {
 
     public typealias ID = E.ID
