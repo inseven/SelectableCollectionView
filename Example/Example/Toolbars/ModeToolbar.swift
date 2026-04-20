@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 Jason Morley
+// Copyright (c) 2022-2026 Jason Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +20,20 @@
 
 import SwiftUI
 
-class Item: Identifiable {
-    let id = UUID()
-    let color: Color = .random
-    var count: Int = 0
+struct ModeToolbar: CustomizableToolbarContent {
+
+    @Binding var isStreaming: Bool
+
+    var body: some CustomizableToolbarContent {
+        ToolbarItem(id: "streaming") {
+            Picker("Mode", selection: $isStreaming) {
+                Label("Streaming", systemImage: "hare")
+                    .tag(true)
+                Label("Static", systemImage: "tortoise")
+                    .tag(false)
+            }
+            .pickerStyle(.inline)
+        }
+    }
+
 }

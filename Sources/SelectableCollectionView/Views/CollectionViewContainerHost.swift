@@ -22,30 +22,27 @@
 
 import SwiftUI
 
-public struct CollectionViewContainerHost<Data: RandomAccessCollection,
-                                          Content: View>
-: NSViewRepresentable where Data.Element: Identifiable,
-                            Data.Element: Hashable,
-                            Data.Element.ID: Hashable {
+public struct CollectionViewContainerHost<E, Content: View>
+: NSViewRepresentable where E: Identifiable,
+                            E.ID: Hashable {
 
-    public typealias ID = Data.Element.ID
-    public typealias Element = Data.Element
+    public typealias ID = E.ID
+    public typealias Element = E
 
     public final class Coordinator: NSObject, CollectionViewContainerDelegate {
 
-        public typealias Element = Data.Element
+        public typealias Element = E
         public typealias CellContent = Content
 
-        var parent: CollectionViewContainerHost<Data, Content>
+        var parent: CollectionViewContainerHost<Element, Content>
         var collectionViewLayoutHash: Int = 0
 
-        init(_ parent: CollectionViewContainerHost<Data, Content>) {
+        init(_ parent: CollectionViewContainerHost<Element, Content>) {
             self.parent = parent
         }
 
         public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
-                                            menuItemsForElements elements: Set<Element>) -> [MenuItem] {
-            let ids = Set(elements.map { $0.id })
+                                            menuItemsForIds ids: Set<Element.ID>) -> [MenuItem] {
             return parent.contextMenu(ids)
         }
 
@@ -55,15 +52,13 @@ public struct CollectionViewContainerHost<Data: RandomAccessCollection,
         }
 
         public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
-                                            didUpdateSelection selection: Set<Element>) {
-            let ids = Set(selection.map { $0.id })
-            parent.selection.wrappedValue = ids
+                                            didUpdateSelection selection: Set<Element.ID>) {
+            parent.selection.wrappedValue = selection
         }
 
         public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
-                                            didDoubleClickSelection selection: Set<Element>) {
-            let ids = Set(selection.map { $0.id })
-            parent.primaryAction(ids)
+                                            didDoubleClickSelection selection: Set<Element.ID>) {
+            parent.primaryAction(selection)
         }
 
         public func collectionViewContainer(_ collectionViewContainer: CollectionViewContainer<Element, Content, Coordinator>,
@@ -78,24 +73,24 @@ public struct CollectionViewContainerHost<Data: RandomAccessCollection,
 
     }
 
-    let items: Data
-    let selection: Binding<Set<Data.Element.ID>>
+    let collection: AnyCollectionViewManagedCollection<E>
+    let selection: Binding<Set<E.ID>>
     let layout: any Layoutable
-    let itemContent: (Data.Element) -> Content
-    let contextMenu: (Set<Data.Element.ID>) -> [MenuItem]
-    let primaryAction: (Set<Data.Element.ID>) -> ()
+    let itemContent: (E) -> Content
+    let contextMenu: (Set<E.ID>) -> [MenuItem]
+    let primaryAction: (Set<E.ID>) -> ()
     let keyDown: (NSEvent) -> Bool
     let keyUp: (NSEvent) -> Bool
 
-    public init(_ items: Data,
-                selection: Binding<Set<Data.Element.ID>>,
-                layout: any Layoutable,
-                @ViewBuilder itemContent: @escaping (Data.Element) -> Content,
-                @MenuItemBuilder contextMenu: @escaping (Set<Data.Element.ID>) -> [MenuItem],
-                primaryAction: @escaping (Set<Data.Element.ID>) -> Void,
-                keyDown: @escaping (NSEvent) -> Bool = { _ in return false },
-                keyUp: @escaping (NSEvent) -> Bool = { _ in return false }) {
-        self.items = items
+    init(_ collection: AnyCollectionViewManagedCollection<E>,
+         selection: Binding<Set<E.ID>>,
+         layout: any Layoutable,
+         @ViewBuilder itemContent: @escaping (E) -> Content,
+         @MenuItemBuilder contextMenu: @escaping (Set<E.ID>) -> [MenuItem],
+         primaryAction: @escaping (Set<E.ID>) -> Void,
+         keyDown: @escaping (NSEvent) -> Bool = { _ in return false },
+         keyUp: @escaping (NSEvent) -> Bool = { _ in return false }) {
+        self.collection = collection
         self.selection = selection
         self.layout = layout
         self.itemContent = itemContent
@@ -109,17 +104,34 @@ public struct CollectionViewContainerHost<Data: RandomAccessCollection,
         return Coordinator(self)
     }
 
-    public func makeNSView(context: Context) -> CollectionViewContainer<Element, Content, Coordinator> {
-        let collectionView = CollectionViewContainer<Element, Content, Coordinator>(layout: layout.makeLayout())
+    public func makeNSView(context: Context) -> CollectionViewContainer<E, Content, Coordinator> {
+        let collectionView = CollectionViewContainer<E, Content, Coordinator>(layout: layout.makeLayout())
         collectionView.delegate = context.coordinator
+        collection.collectionViewDidConnect(collectionView)
+        if !collection.supportsIncrementalUpdates {
+            collection.update()
+        }
         return collectionView
     }
 
-    public func updateNSView(_ collectionView: CollectionViewContainer<Element, Content, Coordinator>, context: Context) {
+    public func updateNSView(_ collectionView: CollectionViewContainer<E, Content, Coordinator>, context: Context) {
         context.coordinator.parent = self
-        let selectedElements = items.filter { selection.wrappedValue.contains($0.id) }
-        collectionView.update(Array(items), selection: Set(selectedElements))
+        // TODO: There needs to be a path for preparing the selection. The filtering should be done by the collection view though.
+//                let selectedElements = items.filter { selection.wrappedValue.contains($0.id) }
+//        collectionView.update(Array(items), selection: Set(selectedElements))
 
+        // First, ensure the visible items re-evaluate their hosted SwiftUI views.
+        collectionView.updateVisibleItems()
+
+        // Next, we manually apply changes to the collection view if our collection doesn't automatically apply updates.
+        if !collection.supportsIncrementalUpdates {
+            collection.collectionViewDidConnect(collectionView)
+            collection.update()
+        }
+
+        // And finally, we apply a new layout if necessary.
+        // It actually looks like this might not be safe to do while also applying updates, so it's possible that we
+        // need to somehow gate this operation.
         if context.coordinator.collectionViewLayoutHash != layout.hashValue {
             let collectionViewLayout = layout.makeLayout()
             collectionView.updateLayout(collectionViewLayout)

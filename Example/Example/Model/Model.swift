@@ -21,8 +21,7 @@
 import Combine
 import SwiftUI
 
-#warning("TODO: What thread is the filter running on?")
-class Model: ObservableObject {
+class Model: ObservableObject, @unchecked Sendable {
 
     @Environment(\.openURL) private var openURL
 

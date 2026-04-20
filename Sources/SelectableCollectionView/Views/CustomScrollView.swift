@@ -18,32 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if os(macOS)
+
+import Carbon
 import SwiftUI
 
-struct ItemsToolbar: CustomizableToolbarContent {
+class CustomScrollView: NSScrollView {
 
-    @EnvironmentObject var model: Model
-
-    var body: some CustomizableToolbarContent {
-
-        ToolbarItem(id: "add") {
-            Button {
-                model.items.append(Item())
-            } label: {
-                Label("Add", systemImage: "plus")
-            }
-            .help("Add item")
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == kVK_Space {
+            nextResponder?.keyDown(with: event)
+            return
         }
+        super.keyDown(with: event)
+    }
 
-        ToolbarItem(id: "add-many") {
-            Button {
-                model.addManyItems()
-            } label: {
-                Label("Add Many", systemImage: "infinity")
-            }
-            .help("Add many items (1000)")
+    override func keyUp(with event: NSEvent) {
+        if event.keyCode == kVK_Space {
+            nextResponder?.keyUp(with: event)
+            return
         }
-
+        super.keyUp(with: event)
     }
 
 }
+
+#endif

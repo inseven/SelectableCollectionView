@@ -55,6 +55,8 @@ struct Cell: View {
                 Text("#\(item.color.hexCode)")
                 Spacer()
             }
+            Text(item.count, format: .number)
+                .font(.title)
             Spacer()
         }
         .background(isPainted ? .mint : item.color.opacity(0.4))

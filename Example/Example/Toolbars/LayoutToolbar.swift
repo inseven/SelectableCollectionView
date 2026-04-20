@@ -26,7 +26,7 @@ struct LayoutToolbar: CustomizableToolbarContent {
 
     var body: some CustomizableToolbarContent {
 
-        ToolbarItem(id: "mode") {
+        ToolbarItem(id: "mode", placement: .navigation) {
             Picker(selection: $mode) {
                 ForEach(LayoutMode.allCases) { mode in
                     Image(systemName: mode.systemImage)
