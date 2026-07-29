@@ -141,7 +141,7 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
         fatalError("init(coder:) has not been implemented")
     }
 
-    // TODO: Take in a set of items to compare with and we can maybe do an intersection?
+    // TODO: Is it possible to restrict this to just the cells that have changed? Does this come for free if ShortcutItemView is type safe?
     func updateVisibleItems() {
         // Update the hosted item content.
         for item in collectionView.visibleItems() {
@@ -280,7 +280,8 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
         dispatchPrecondition(condition: .onQueue(.main))
 
         // Cache the items.
-        for item in items {
+        self.items.removeAll()
+        for item in items {	
             self.items[item.id] = item
         }
 
@@ -290,7 +291,7 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
         snapshot.appendItems(items.map({ $0.id }), toSection: Section.none)
         dataSource.apply(snapshot, animatingDifferences: true)
 
-        // TODO: Update the selection?
+        // TODO: Update the selection and the currently selected coordinate.
     }
 
     public func insertItem(_ item: Element, atIndex index: Int, items: [Element]) {
