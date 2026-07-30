@@ -15,7 +15,6 @@ let package = Package(
             targets: ["SelectableCollectionView"]),
     ],
     dependencies: [
-        .package(path: "MacResources"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
         .package(url: "https://github.com/inseven/licensable.git", .upToNextMajor(from: "0.0.1")),
         .package(url: "https://github.com/tribalworldwidelondon/CassowarySwift.git", from: "2.0.0"),
@@ -26,9 +25,6 @@ let package = Package(
             dependencies: [
                 .product(name: "Cassowary", package: "CassowarySwift"),
                 .product(name: "Licensable", package: "Licensable"),
-                .product(name: "SelectableCollectionViewMacResources",
-                         package: "MacResources",
-                         condition: .when(platforms: [.macOS])),
             ],
             resources: [.process("Resources")]),
         .testTarget(

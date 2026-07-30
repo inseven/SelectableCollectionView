@@ -24,8 +24,6 @@ import Carbon
 import Combine
 import SwiftUI
 
-import SelectableCollectionViewMacResources
-
 public protocol CollectionViewContainerDelegate: NSObject {
 
     associatedtype Element: Identifiable
@@ -67,7 +65,7 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
 
     typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Element.ID>
     typealias DataSource = NSCollectionViewDiffableDataSource<Section, Element.ID>
-    typealias Cell = ShortcutItemView
+    typealias Cell = CollectionViewCell<Element.ID, Content>
 
     private let scrollView: CustomScrollView
     private let collectionView: InteractiveCollectionView
@@ -90,17 +88,26 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
         super.init(frame: .zero)
 
         dataSource = DataSource(collectionView: collectionView) { [weak self] collectionView, indexPath, id in
+            guard let view = collectionView.makeItem(withIdentifier: Cell.identifier,
+                                                     for: indexPath) as? Cell else {
+                return Cell()
+            }
             guard let self,
                   let item = self.items[id],
-                  let view = collectionView.makeItem(withIdentifier: ShortcutItemView.identifier, for: indexPath) as? ShortcutItemView,
                   let content = self.delegate?.collectionViewContainer(self, contentForElement: item)
             else {
-                return ShortcutItemView()
+                // Explicitly empty the cell. It may have been recycled, in which case returning it untouched would
+                // leave it showing the previous element's content.
+                view.configure(nil,
+                               id: nil,
+                               parentHasFocus: collectionView.isFirstResponder,
+                               parentIsKey: collectionView.window?.isKeyWindow ?? false)
+                return view
             }
-            view.configure(AnyView(content),
+            view.configure(content,
+                           id: id,
                            parentHasFocus: collectionView.isFirstResponder,
                            parentIsKey: collectionView.window?.isKeyWindow ?? false)
-            view.element = item
             return view
         }
 
@@ -117,9 +124,7 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
         collectionView.delegate = self
         collectionView.interactionDelegate = self
 
-        let itemNib = NSNib(nibNamed: "ShortcutItemView", bundle: Resources.bundle)
-        collectionView.register(itemNib, forItemWithIdentifier: ShortcutItemView.identifier)
-        collectionView.register(ShortcutItemView.self, forItemWithIdentifier: ShortcutItemView.identifier)
+        collectionView.register(Cell.self, forItemWithIdentifier: Cell.identifier)
 
         collectionView.isSelectable = true
         collectionView.allowsMultipleSelection = true
@@ -141,16 +146,20 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
         fatalError("init(coder:) has not been implemented")
     }
 
-    // TODO: Take in a set of items to compare with and we can maybe do an intersection?
+    // TODO: Is it possible to restrict this to just the cells that have changed?
     func updateVisibleItems() {
         // Update the hosted item content.
         for item in collectionView.visibleItems() {
-            guard let item = item as? ShortcutItemView,
-                  let element = item.element as? Element else {
+            guard let item = item as? Cell,
+                  let indexPath = collectionView.indexPath(for: item),
+                  let id = dataSource?.itemIdentifier(for: indexPath),
+                  let element = items[id],
+                  let content = delegate?.collectionViewContainer(self, contentForElement: element)
+            else {
                 continue
             }
-            let content = self.delegate?.collectionViewContainer(self, contentForElement: element)
-            item.configure(AnyView(content),
+            item.configure(content,
+                           id: id,
                            parentHasFocus: collectionView.isFirstResponder,
                            parentIsKey: collectionView.window?.isKeyWindow ?? false)
         }
@@ -280,7 +289,8 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
         dispatchPrecondition(condition: .onQueue(.main))
 
         // Cache the items.
-        for item in items {
+        self.items.removeAll()
+        for item in items {	
             self.items[item.id] = item
         }
 
@@ -290,7 +300,7 @@ public class CollectionViewContainer<Element: Identifiable, Content: View, Deleg
         snapshot.appendItems(items.map({ $0.id }), toSection: Section.none)
         dataSource.apply(snapshot, animatingDifferences: true)
 
-        // TODO: Update the selection?
+        // TODO: Update the selection and the currently selected coordinate.
     }
 
     public func insertItem(_ item: Element, atIndex index: Int, items: [Element]) {

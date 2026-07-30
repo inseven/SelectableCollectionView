@@ -74,9 +74,8 @@ class Creator: CollectionViewStreamingCollection {
                     return
                 }
                 let index = Int.random(in: 0..<items.count)
-                var item = items[index]
+                let item = items[index]
                 item.count += 1
-                items[index] = item  // We currently need to replace this because it's a struct.
                 collectionView?.updateItem(item, atIndex: index, items: items)
             }
 

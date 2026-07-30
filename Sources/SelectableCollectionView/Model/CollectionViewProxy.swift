@@ -20,6 +20,8 @@
 
 import SwiftUI
 
+
+// TODO: We need a decoupling proxy if we're not going to have memory leaks
 /**
  * Proxy protocol for managing a collection view.
  *
