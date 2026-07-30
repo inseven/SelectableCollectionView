@@ -66,17 +66,19 @@ class GridItemCollectionViewLayout: NSCollectionViewCompositionalLayout {
                         let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(width.value),
                                                               heightDimension: .estimated(10))
                         return [NSCollectionLayoutItem(layoutSize: itemSize)]
-                    case .adaptive(let minimum, let maximum):
+                    case .adaptive(let minimum, _):
                         let width = width.value + spacing
                         let columns = max(1.0, floor(width / (minimum + spacing)))
                         let itemWidth = width / columns
                         let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(itemWidth - spacing),
                                                               heightDimension: .estimated(10))
                         var items: [NSCollectionLayoutItem] = []
-                        for i in 0..<Int(columns) {
+                        for _ in 0..<Int(columns) {
                             items.append(NSCollectionLayoutItem(layoutSize: itemSize))
                         }
                         return items
+                    @unknown default:
+                        fatalError("Unsupported layout.")
                     }
                 }
             }

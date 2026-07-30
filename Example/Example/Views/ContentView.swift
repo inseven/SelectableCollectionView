@@ -25,13 +25,16 @@ import SelectableCollectionView
 
 struct ContentView: View {
 
+    @State var isStreaming = true
     @StateObject var model = Model()
+    let creator = Creator()
 
     @MenuItemBuilder func contextMenu(_ selection: Set<Item.ID>) -> [MenuItem] {
         if !selection.isEmpty {
-            MenuItem("Delete") {
+            MenuItem("Delete", systemImage: "trash") {
                 model.remove(ids: selection)
             }
+            .disabled(isStreaming)
         }
     }
 
@@ -42,15 +45,25 @@ struct ContentView: View {
     var body: some View {
         HStack {
             if let layout = model.layoutMode.layout {
-                SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
-                    Cell(item: item, isPainted: model.isPainted)
-                } contextMenu: { selection in
-                    contextMenu(selection)
-                } primaryAction: { selection in
-                    primaryAction(selection)
+                if isStreaming {
+                    SelectableCollectionView(creator, selection: $model.selection, layout: layout) { item in
+                        Cell(item: item, isPainted: model.isPainted)
+                    } contextMenu: { selection in
+                        contextMenu(selection)
+                    } primaryAction: { selection in
+                        primaryAction(selection)
+                    }
+                } else {
+                    SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
+                        Cell(item: item, isPainted: model.isPainted)
+                    } contextMenu: { selection in
+                        contextMenu(selection)
+                    } primaryAction: { selection in
+                        primaryAction(selection)
+                    }
                 }
             } else {
-                Table(model.filteredItems, selection: $model.selection) {
+                Table(isStreaming ? creator.items : model.filteredItems, selection: $model.selection) {
                     TableColumn("") { item in
                         Image(systemName: "circle.fill")
                             .foregroundColor(item.color)
@@ -65,13 +78,13 @@ struct ContentView: View {
             }
         }
         .searchable(text: $model.filter)
-        .toolbar(id: "main") {
+        .toolbar {
             LayoutToolbar(mode: $model.layoutMode)
-            SelectionToolbar()
+            ModeToolbar(isStreaming: $isStreaming)
             StateToolbar()
-            ItemsToolbar()
+            SelectionToolbar()
         }
-        .navigationSubtitle(model.subtitle)
+        .navigationSubtitle(isStreaming ? "\(creator.items.count) items" : model.subtitle)
         .onAppear {
             model.run()
         }

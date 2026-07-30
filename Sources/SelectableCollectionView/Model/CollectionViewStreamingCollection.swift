@@ -1,4 +1,4 @@
-// Copyright (c) 2022-2024 Jason Morley
+// Copyright (c) 2022-2026 Jason Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +20,11 @@
 
 import SwiftUI
 
-class Item: Identifiable {
-    let id = UUID()
-    let color: Color = .random
-    var count: Int = 0
+// Always called on the main thread.
+public protocol CollectionViewStreamingCollection<Element>: AnyObject {
+
+    associatedtype Element: Identifiable
+
+    func collectionViewDidConnect(_ collectionView: (any CollectionViewProxy<Element>)?)
+
 }

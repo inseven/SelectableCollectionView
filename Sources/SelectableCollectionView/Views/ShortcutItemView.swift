@@ -24,7 +24,7 @@ import SwiftUI
 
 import SelectableCollectionViewMacResources
 
-#warning("TODO: Can we type this internally?")
+// TODO: Explore whether it's possible to make this generic on the cell view type.
 class ShortcutItemView: NSCollectionViewItem {
 
     static let identifier = NSUserInterfaceItemIdentifier(rawValue: "CollectionViewItem")
