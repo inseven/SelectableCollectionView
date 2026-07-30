@@ -54,6 +54,7 @@ struct ContentView: View {
                         primaryAction(selection)
                     }
                 } else {
+                    // TODO: Think hard about memory leaks here.
                     SelectableCollectionView(model.filteredItems, selection: $model.selection, layout: layout) { item in
                         Cell(item: item, isPainted: model.isPainted)
                     } contextMenu: { selection in
