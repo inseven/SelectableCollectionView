@@ -34,6 +34,13 @@ struct Cell: View {
         }
     }
 
+    static let dateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .long
+        return dateFormatter
+    }()
+
     @Environment(\.isSelected) var isSelected
     @Environment(\.highlightState) var highlightState
     @Environment(\.selectionColor) var selectionColor
@@ -57,6 +64,9 @@ struct Cell: View {
             }
             Text(item.count, format: .number)
                 .font(.title)
+            TimelineView(.periodic(from: .now, by: 1.0)) { context in
+                Text(Self.dateFormatter.string(from: context.date))
+            }
             Spacer()
         }
         .background(isPainted ? .mint : item.color.opacity(0.4))
