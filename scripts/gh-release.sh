@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2022-2024 Jason Morley
+# Copyright (c) 2022-2026 Jason Morley
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +20,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
-RELEASE_SCRIPT="${SCRIPTS_DIRECTORY}/gh-release.sh"
+set -e
+set -o pipefail
+set -x
 
-source "${SCRIPTS_DIRECTORY}/environment.sh"
+# Actually make the release.
+gh release create "$CHANGES_TAG" --title "$CHANGES_QUALIFIED_TITLE" --notes-file "$CHANGES_NOTES_FILE"
 
-changes --verbose release --skip-if-empty --push --command "\"${RELEASE_SCRIPT}\"" "\"$@\""
+# Upload the attachments.
+for attachment in "$@"
+do
+    gh release upload "$CHANGES_TAG" "$attachment"
+done
