@@ -1,4 +1,6 @@
 .DS_Store
+/.local
+/scripts/Pipfile.lock
 .build
 .netrc
 .swiftpm/config/registries.json
