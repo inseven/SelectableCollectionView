@@ -16,7 +16,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.5.0"),
-        .package(url: "https://github.com/inseven/licensable.git", .upToNextMajor(from: "0.0.1")),
+        .package(url: "https://github.com/inseven/licensable.git", .upToNextMajor(from: "0.1.0")),
         .package(url: "https://github.com/tribalworldwidelondon/CassowarySwift.git", from: "2.0.1"),
     ],
     targets: [
